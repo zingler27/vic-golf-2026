@@ -1,0 +1,1122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>'26 Golden Wedge Invitational</title>
+<style>
+* {
+margin: 0;
+padding: 0;
+box-sizing: border-box;
+}
+
+body {
+font-family: 'Arial', sans-serif;
+background: linear-gradient(135deg, #2E8B57 0%, #228B22 50%, #006400 100%);
+min-height: 100vh;
+padding: 20px;
+}
+
+.container {
+max-width: 1400px;
+margin: 0 auto;
+}
+
+.header {
+text-align: center;
+color: white;
+margin-bottom: 30px;
+}
+
+.header h1 {
+font-size: 3em;
+margin-bottom: 10px;
+text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+}
+
+.header p {
+font-size: 1.2em;
+opacity: 0.9;
+}
+
+.tabs {
+display: flex;
+background: rgba(255,255,255,0.1);
+border-radius: 15px 15px 0 0;
+overflow: hidden;
+margin-bottom: 0;
+}
+
+.tab {
+flex: 1;
+padding: 15px 20px;
+background: rgba(255,255,255,0.1);
+color: white;
+border: none;
+cursor: pointer;
+font-size: 16px;
+font-weight: bold;
+transition: background 0.3s;
+}
+
+.tab.active {
+background: rgba(255,255,255,0.95);
+color: #2E8B57;
+}
+
+.tab:hover:not(.active) {
+background: rgba(255,255,255,0.2);
+}
+
+.tab-content {
+display: none;
+background: rgba(255,255,255,0.95);
+border-radius: 0 0 15px 15px;
+padding: 20px;
+box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+
+.tab-content.active {
+display: block;
+}
+
+.controls {
+background: rgba(46,139,87,0.1);
+border-radius: 10px;
+padding: 20px;
+margin-bottom: 20px;
+display: flex;
+gap: 15px;
+flex-wrap: wrap;
+align-items: center;
+}
+
+.controls input, .controls button, .controls select {
+padding: 10px 15px;
+border: 1px solid #ddd;
+border-radius: 8px;
+font-size: 16px;
+}
+
+.controls input, .controls select {
+flex: 1;
+min-width: 150px;
+background: white;
+}
+
+.controls button {
+background: #2E8B57;
+color: white;
+cursor: pointer;
+transition: background 0.3s;
+border: none;
+}
+
+.controls button:hover {
+background: #228B22;
+}
+
+.controls button.delete-btn {
+background: #DC143C;
+}
+
+.controls button.delete-btn:hover {
+background: #B22222;
+}
+
+.leaderboard-table {
+width: 100%;
+border-collapse: collapse;
+background: white;
+border-radius: 10px;
+overflow: hidden;
+box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.leaderboard-table th,
+.leaderboard-table td {
+padding: 12px 15px;
+text-align: left;
+border-bottom: 1px solid #ddd;
+}
+
+.leaderboard-table th {
+background: #2E8B57;
+color: white;
+font-weight: bold;
+cursor: pointer;
+transition: background 0.3s;
+}
+
+.leaderboard-table th:hover {
+background: #228B22;
+}
+
+.leaderboard-table tr:nth-child(even) {
+background: #f8f9fa;
+}
+
+.leaderboard-table tr:hover {
+background: #e8f5e8;
+}
+
+.rank {
+font-weight: bold;
+color: #2E8B57;
+width: 60px;
+}
+
+.rank.first {
+color: #FFD700;
+}
+
+.rank.second {
+color: #C0C0C0;
+}
+
+.rank.third {
+color: #CD7F32;
+}
+
+.player-name {
+font-weight: bold;
+color: #333;
+}
+
+.score {
+font-weight: bold;
+font-size: 1.1em;
+}
+
+.score.under-par {
+color: #228B22;
+}
+
+.score.over-par {
+color: #DC143C;
+}
+
+.score.even-par {
+color: #333;
+}
+
+.win-loss {
+font-weight: bold;
+}
+
+.wins {
+color: #228B22;
+}
+
+.losses {
+color: #DC143C;
+}
+
+.actions {
+display: flex;
+gap: 5px;
+}
+
+.btn-small {
+padding: 5px 10px;
+border: none;
+border-radius: 4px;
+cursor: pointer;
+font-size: 12px;
+}
+
+.btn-edit {
+background: #2196F3;
+color: white;
+}
+
+.btn-delete {
+background: #DC143C;
+color: white;
+}
+
+.empty-state {
+text-align: center;
+padding: 40px;
+color: #666;
+}
+
+.empty-state h3 {
+margin-bottom: 10px;
+}
+
+.par-info {
+background: rgba(46,139,87,0.1);
+padding: 10px;
+border-radius: 8px;
+margin-bottom: 15px;
+text-align: center;
+font-weight: bold;
+color: #2E8B57;
+}
+
+.round-history {
+font-size: 0.9em;
+color: #666;
+margin-top: 5px;
+}
+
+.tournament-info {
+background: rgba(255,255,255,0.95);
+border-radius: 15px;
+padding: 30px;
+margin-top: 30px;
+box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+
+.tournament-info h2 {
+color: #2E8B57;
+text-align: center;
+margin-bottom: 30px;
+font-size: 2.2em;
+border-bottom: 3px solid #2E8B57;
+padding-bottom: 10px;
+}
+
+.info-section {
+margin-bottom: 30px;
+}
+
+.info-section h3 {
+color: #2E8B57;
+font-size: 1.4em;
+margin-bottom: 15px;
+border-left: 4px solid #2E8B57;
+padding-left: 15px;
+}
+
+.info-section ul {
+list-style: none;
+padding-left: 0;
+}
+
+.info-section li {
+margin-bottom: 8px;
+padding-left: 20px;
+position: relative;
+}
+
+.info-section li:before {
+content: "⛳";
+position: absolute;
+left: 0;
+}
+
+.payout-grid {
+display: grid;
+grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+gap: 20px;
+margin-top: 20px;
+}
+
+.payout-table {
+background: #f8f9fa;
+border-radius: 10px;
+padding: 20px;
+border: 2px solid #2E8B57;
+}
+
+.payout-table h4 {
+color: #2E8B57;
+text-align: center;
+margin-bottom: 15px;
+font-size: 1.2em;
+}
+
+.payout-row {
+display: flex;
+justify-content: space-between;
+padding: 8px 0;
+border-bottom: 1px solid #ddd;
+}
+
+.payout-row:last-child {
+border-bottom: none;
+font-weight: bold;
+}
+
+.payout-position {
+font-weight: bold;
+color: #333;
+}
+
+.payout-amount {
+color: #228B22;
+font-weight: bold;
+}
+
+.field-info {
+background: linear-gradient(135deg, #2E8B57, #228B22);
+color: white;
+text-align: center;
+padding: 20px;
+border-radius: 10px;
+margin-bottom: 30px;
+font-size: 1.3em;
+font-weight: bold;
+}
+
+.buy-in-info {
+background: #FFD700;
+color: #333;
+text-align: center;
+padding: 15px;
+border-radius: 10px;
+margin: 20px 0;
+font-size: 1.2em;
+font-weight: bold;
+border: 3px solid #FFA500;
+}
+
+@media (max-width: 768px) {
+.header h1 {
+font-size: 2em;
+}
+
+.controls {
+flex-direction: column;
+}
+
+.controls input, .controls button, .controls select {
+width: 100%;
+}
+
+.leaderboard-table {
+font-size: 14px;
+}
+
+.leaderboard-table th,
+.leaderboard-table td {
+padding: 8px 6px;
+}
+
+.tabs {
+flex-direction: column;
+}
+}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="header">
+  <h1>⛳ '26 Golden Wedge Invitational</h1>
+  <img src="19A58365-3B04-4468-A5DA-2A5F1AFAB979.PNG" alt="Golden Wedge Invitational" class="header-image" />
+  <p>Glory awaits you....</p>
+</div>
+
+<div class="tabs">
+<button class="tab active" onclick="showTab('wins-losses')">🏆 Wins & Losses</button>
+<button class="tab" onclick="showTab('score-to-par')">📊 Score to Par</button>
+</div>
+
+<!-- Wins & Losses Tab -->
+<div id="wins-losses" class="tab-content active">
+
+<table class="leaderboard-table">
+<thead>
+<tr>
+<th onclick="sortWinLoss('rank')">Rank</th>
+<th onclick="sortWinLoss('name')">Player</th>
+<th onclick="sortWinLoss('wins')">Wins</th>
+<th onclick="sortWinLoss('losses')">Losses</th>
+<th onclick="sortWinLoss('winRate')">Win %</th>
+<th onclick="sortWinLoss('total')">Total Games</th>
+<th>Actions</th>
+</tr>
+</thead>
+<tbody id="winLossBody">
+<tr class="empty-state">
+<td colspan="7">
+<h3>No match results yet!</h3>
+<p>Add your first match result above to get started.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+
+<!-- Score to Par Tab -->
+<div id="score-to-par" class="tab-content">
+<div class="par-info">
+Par: 72 | Enter actual scores (e.g., 74 = +2, 70 = -2)
+</div>
+
+<div class="controls">
+<input type="text" id="parPlayerName" placeholder="Player Name" />
+<input type="number" id="playerScore" placeholder="Score (e.g., 74)" min="40" max="120" />
+<button onclick="addScore()">Add Score</button>
+<button onclick="clearScores()" class="delete-btn">Clear All</button>
+</div>
+
+<table class="leaderboard-table">
+<thead>
+<tr>
+<th onclick="sortScores('rank')">Rank</th>
+<th onclick="sortScores('name')">Player</th>
+<th onclick="sortScores('totalToPar')">Total to Par</th>
+<th onclick="sortScores('rounds')">Rounds</th>
+<th onclick="sortScores('average')">Avg Score</th>
+<th onclick="sortScores('bestRound')">Best Round</th>
+<th>Actions</th>
+</tr>
+</thead>
+<tbody id="scoreBody">
+<tr class="empty-state">
+<td colspan="7">
+<h3>No scores yet!</h3>
+<p>Add your first score above to get started.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+
+<!-- Tournament Format and Rules Section -->
+<div class="tournament-info">
+<h2>⛳ Results</h2>
+<div class="controls">
+<input type="date" id="matchDate" />
+<input type="text" id="winnerName" placeholder="Winner Name" />
+<input type="text" id="loserName" placeholder="Loser Name" />
+<input type="text" id="matchScore" placeholder="Score (ex: 4&3)" />
+<button onclick="addMatchResult()">Add Result</button>
+<button onclick="clearResults()" class="delete-btn">Clear All</button>
+</div>
+
+<table class="leaderboard-table">
+<thead>
+<tr>
+<th>Date</th>
+<th>Winner</th>
+<th>Loser</th>
+<th>Score</th>
+<th>Actions</th>
+</tr>
+</thead>
+<tbody id="resultsBody">
+<tr class="empty-state">
+<td colspan="5">
+<h3>No results yet!</h3>
+<p>Add your first match result above.</p>
+</td>
+</tr>
+</tbody>
+</table>
+    
+    <div class="tournament-info">
+<h2>⛳ Format and Rules</h2>
+
+<div class="field-info">
+🏌️‍♂️ The Players - JW, Cliff, Manny, Austin, Mike, JZ, Aaron, Jeremy, Alex 🏌️‍♂️
+</div>
+
+<div class="info-section">
+<h3>🏆 Match Play</h3>
+<ul>
+<li>Everyone plays everyone once for a total win/loss record</li>
+<li>Top 4 match-play records get seeded 1-4</li>
+<li>Semifinals will be 1 vs 4 and 2 vs 3 with the winners playing for the title</li>
+<li>Tie for top 4 = head-to-head result</li>
+</ul>
+</div>
+
+<div class="buy-in-info">
+💰 Buy In: $75 💰
+</div>
+
+<div class="payout-grid">
+<div class="payout-table">
+<h4>🏆 Match Play Pay Out</h4>
+<div class="payout-row">
+<span class="payout-position">Winner</span>
+<span class="payout-amount">$250</span>
+</div>
+<div class="payout-row">
+<span class="payout-position">Second</span>
+<span class="payout-amount">$175</span>
+</div>
+<div class="payout-row">
+<span class="payout-position">Third</span>
+<span class="payout-amount">$150</span>
+</div>
+<div class="payout-row">
+<span class="payout-position">Fourth</span>
+<span class="payout-amount">$100</span>
+</div>
+</div>
+</div>
+
+function addMatchResult() {
+const date = document.getElementById('matchDate').value;
+const winner = document.getElementById('winnerName').value.trim();
+const loser = document.getElementById('loserName').value.trim();
+const score = document.getElementById('matchScore').value.trim();
+
+if (!date || !winner || !loser || !score) {
+alert("Please complete all fields");
+return;
+}
+
+matchResults.push({
+id: Date.now(),
+date,
+winner,
+loser,
+score
+});
+
+saveData();
+updateResultsDisplay();
+recalculateStandings();
+clearResultInputs();
+}
+
+function clearResultInputs() {
+document.getElementById('winnerName').value = '';
+document.getElementById('loserName').value = '';
+document.getElementById('matchScore').value = '';
+}
+
+function deleteResult(id) {
+matchResults = matchResults.filter(r => r.id !== id);
+saveData();
+updateResultsDisplay();
+recalculateStandings();
+}
+
+function clearResults() {
+if (confirm("Clear all results?")) {
+matchResults = [];
+saveData();
+updateResultsDisplay();
+recalculateStandings();
+}
+}
+
+function updateResultsDisplay() {
+const tbody = document.getElementById('resultsBody');
+
+if (matchResults.length === 0) {
+tbody.innerHTML = `
+<tr class="empty-state">
+<td colspan="5">
+<h3>No results yet!</h3>
+<p>Add your first match result above.</p>
+</td>
+</tr>`;
+return;
+}
+
+tbody.innerHTML = matchResults
+.sort((a,b)=> new Date(a.date) - new Date(b.date))
+.map(r => `
+<tr>
+<td>${r.date}</td>
+<td class="wins">${r.winner}</td>
+<td class="losses">${r.loser}</td>
+<td>${r.score}</td>
+<td>
+<button class="btn-small btn-delete" onclick="deleteResult(${r.id})">Delete</button>
+</td>
+</tr>
+`).join('');
+}
+
+function recalculateStandings() {
+
+winLossData = [];
+
+matchResults.forEach(match => {
+
+let winner = winLossData.find(p => p.name === match.winner);
+let loser = winLossData.find(p => p.name === match.loser);
+
+if (!winner) {
+winner = { name: match.winner, wins: 0, losses: 0 };
+winLossData.push(winner);
+}
+if (!loser) {
+loser = { name: match.loser, wins: 0, losses: 0 };
+winLossData.push(loser);
+}
+
+winner.wins++;
+loser.losses++;
+
+});
+
+applyTieBreakers();
+updateWinLossDisplay();
+}
+
+
+function applyTieBreakers() {
+
+winLossData.forEach(p => {
+p.total = p.wins + p.losses;
+p.winRate = p.total > 0 ? p.wins / p.total : 0;
+});
+
+winLossData.sort((a,b) => {
+
+if (b.winRate !== a.winRate)
+return b.winRate - a.winRate;
+
+const tiedGroup = winLossData.filter(p => p.winRate === a.winRate);
+
+if (tiedGroup.length === 2) {
+
+const head = matchResults.find(m =>
+(m.winner === a.name && m.loser === b.name) ||
+(m.winner === b.name && m.loser === a.name)
+);
+
+if (head) return head.winner === a.name ? -1 : 1;
+
+}
+
+if (tiedGroup.length > 2) {
+
+// Mini-table among tied players
+const mini = tiedGroup.map(player => {
+let miniWins = 0;
+matchResults.forEach(m => {
+if (m.winner === player.name &&
+tiedGroup.some(p => p.name === m.loser)) {
+miniWins++;
+}
+});
+return { ...player, miniWins };
+});
+
+mini.sort((x,y)=> y.miniWins - x.miniWins);
+
+return mini.findIndex(p=>p.name===a.name)
+-
+mini.findIndex(p=>p.name===b.name);
+}
+
+return 0;
+});
+}
+      
+<script>
+let matchResults = [];
+let scoreData = [];
+let wlSortColumn = 'winRate';
+let wlSortDirection = 'desc';
+let scoreSortColumn = 'totalToPar';
+let scoreSortDirection = 'asc';
+const PAR = 72;
+
+// Load data from localStorage on page load
+window.onload = function() {
+const savedResults = localStorage.getItem('matchResults');
+if (savedResults) matchResults = JSON.parse(savedResults);
+
+updateResultsDisplay();
+recalculateStandings();
+const savedWL = localStorage.getItem('winLossData');
+const savedScores = localStorage.getItem('scoreData');
+
+if (savedWL) {
+winLossData = JSON.parse(savedWL);
+}
+if (savedScores) {
+scoreData = JSON.parse(savedScores);
+}
+
+updateWinLossDisplay();
+updateScoreDisplay();
+};
+
+// Save data to localStorage
+function saveData() {
+localStorage.setItem('matchResults', JSON.stringify(matchResults));
+}
+
+// Tab functionality
+function showTab(tabName) {
+// Hide all tab contents
+document.querySelectorAll('.tab-content').forEach(content => {
+content.classList.remove('active');
+});
+
+// Remove active class from all tabs
+document.querySelectorAll('.tab').forEach(tab => {
+tab.classList.remove('active');
+});
+
+// Show selected tab content
+document.getElementById(tabName).classList.add('active');
+
+// Add active class to clicked tab
+event.target.classList.add('active');
+}
+
+// Win/Loss functionality
+function addWinLoss() {
+const nameInput = document.getElementById('wlPlayerName');
+const resultSelect = document.getElementById('matchResult');
+
+const name = nameInput.value.trim();
+const result = resultSelect.value;
+
+if (!name || !result) {
+alert('Please enter both player name and match result');
+return;
+}
+
+let player = winLossData.find(p => p.name.toLowerCase() === name.toLowerCase());
+
+if (!player) {
+player = {
+name: name,
+wins: 0,
+losses: 0,
+id: Date.now()
+};
+winLossData.push(player);
+}
+
+if (result === 'win') {
+player.wins++;
+} else {
+player.losses++;
+}
+
+nameInput.value = '';
+resultSelect.value = '';
+
+saveData();
+updateWinLossDisplay();
+}
+
+function deleteWinLossPlayer(id) {
+if (confirm('Are you sure you want to delete this player?')) {
+winLossData = winLossData.filter(p => p.id !== id);
+saveData();
+updateWinLossDisplay();
+}
+}
+
+function editWinLossPlayer(id) {
+const player = winLossData.find(p => p.id === id);
+if (player) {
+const newName = prompt('Enter new name:', player.name);
+const newWins = prompt('Enter wins:', player.wins);
+const newLosses = prompt('Enter losses:', player.losses);
+
+if (newName !== null) player.name = newName.trim();
+if (newWins !== null) player.wins = parseInt(newWins) || 0;
+if (newLosses !== null) player.losses = parseInt(newLosses) || 0;
+
+saveData();
+updateWinLossDisplay();
+}
+}
+
+function clearWinLoss() {
+if (confirm('Are you sure you want to clear all win/loss data?')) {
+winLossData = [];
+saveData();
+updateWinLossDisplay();
+}
+}
+
+function sortWinLoss(column) {
+if (wlSortColumn === column) {
+wlSortDirection = wlSortDirection === 'asc' ? 'desc' : 'asc';
+} else {
+wlSortColumn = column;
+wlSortDirection = column === 'name' ? 'asc' : 'desc';
+}
+updateWinLossDisplay();
+}
+
+function updateWinLossDisplay() {
+// Calculate win rates and sort
+winLossData.forEach(player => {
+const total = player.wins + player.losses;
+player.winRate = total > 0 ? (player.wins / total * 100) : 0;
+player.total = total;
+});
+
+winLossData.sort((a, b) => {
+let aVal, bVal;
+
+switch(wlSortColumn) {
+case 'name':
+aVal = a.name.toLowerCase();
+bVal = b.name.toLowerCase();
+break;
+case 'wins':
+aVal = a.wins;
+bVal = b.wins;
+break;
+case 'losses':
+aVal = a.losses;
+bVal = b.losses;
+break;
+case 'winRate':
+aVal = a.winRate;
+bVal = b.winRate;
+break;
+case 'total':
+aVal = a.total;
+bVal = b.total;
+break;
+default:
+aVal = a.winRate;
+bVal = b.winRate;
+}
+
+if (wlSortDirection === 'asc') {
+return aVal > bVal ? 1 : -1;
+} else {
+return aVal < bVal ? 1 : -1;
+}
+});
+
+const tbody = document.getElementById('winLossBody');
+
+if (winLossData.length === 0) {
+tbody.innerHTML = `
+<tr class="empty-state">
+<td colspan="7">
+<h3>No match results yet!</h3>
+<p>Add your first match result above to get started.</p>
+</td>
+</tr>
+`;
+return;
+}
+tbody.innerHTML = winLossData.map((player, index) => {
+const rank = index + 1;
+let rankClass = 'rank';
+if (rank === 1) rankClass += ' first';
+else if (rank === 2) rankClass += ' second';
+else if (rank === 3) rankClass += ' third';
+
+return `
+<tr>
+<td class="${rankClass}">#${rank}</td>
+<td class="player-name">${player.name}</td>
+<td class="wins">${player.wins}</td>
+<td class="losses">${player.losses}</td>
+<td class="win-loss">${player.winRate.toFixed(1)}%</td>
+<td>${player.total}</td>
+<td class="actions">
+<button class="btn-small btn-edit" onclick="editWinLossPlayer(${player.id})">Edit</button>
+<button class="btn-small btn-delete" onclick="deleteWinLossPlayer(${player.id})">Delete</button>
+</td>
+</tr>
+`;
+}).join('');
+}
+
+// Score to Par functionality
+function addScore() {
+const nameInput = document.getElementById('parPlayerName');
+const scoreInput = document.getElementById('playerScore');
+
+const name = nameInput.value.trim();
+const score = parseInt(scoreInput.value);
+
+if (!name || !score || score < 40 || score > 120) {
+alert('Please enter a valid player name and score (40-120)');
+return;
+}
+
+let player = scoreData.find(p => p.name.toLowerCase() === name.toLowerCase());
+
+if (!player) {
+player = {
+name: name,
+scores: [],
+id: Date.now()
+};
+scoreData.push(player);
+}
+
+player.scores.push(score);
+
+nameInput.value = '';
+scoreInput.value = '';
+
+saveData();
+updateScoreDisplay();
+}
+
+function deleteScorePlayer(id) {
+if (confirm('Are you sure you want to delete this player and all their scores?')) {
+scoreData = scoreData.filter(p => p.id !== id);
+saveData();
+updateScoreDisplay();
+}
+}
+
+function editScorePlayer(id) {
+const player = scoreData.find(p => p.id === id);
+if (player) {
+const newName = prompt('Enter new name:', player.name);
+if (newName !== null) {
+player.name = newName.trim();
+saveData();
+updateScoreDisplay();
+}
+}
+}
+
+function clearScores() {
+if (confirm('Are you sure you want to clear all score data?')) {
+scoreData = [];
+saveData();
+updateScoreDisplay();
+}
+}
+
+function sortScores(column) {
+if (scoreSortColumn === column) {
+scoreSortDirection = scoreSortDirection === 'asc' ? 'desc' : 'asc';
+} else {
+scoreSortColumn = column;
+scoreSortDirection = column === 'name' ? 'asc' : (column === 'totalToPar' ? 'asc' : 'desc');
+}
+updateScoreDisplay();
+}
+
+function updateScoreDisplay() {
+// Calculate stats for each player
+scoreData.forEach(player => {
+if (player.scores.length > 0) {
+player.totalToPar = player.scores.reduce((sum, score) => sum + (score - PAR), 0);
+player.rounds = player.scores.length;
+player.average = player.scores.reduce((sum, score) => sum + score, 0) / player.scores.length;
+player.bestRound = Math.min(...player.scores);
+} else {
+player.totalToPar = 0;
+player.rounds = 0;
+player.average = 0;
+player.bestRound = 0;
+}
+});
+
+scoreData.sort((a, b) => {
+let aVal, bVal;
+
+switch(scoreSortColumn) {
+case 'name':
+aVal = a.name.toLowerCase();
+bVal = b.name.toLowerCase();
+break;
+case 'totalToPar':
+aVal = a.totalToPar;
+bVal = b.totalToPar;
+break;
+case 'rounds':
+aVal = a.rounds;
+bVal = b.rounds;
+break;
+case 'average':
+aVal = a.average;
+bVal = b.average;
+break;
+case 'bestRound':
+aVal = a.bestRound;
+bVal = b.bestRound;
+break;
+default:
+aVal = a.totalToPar;
+bVal = b.totalToPar;
+}
+
+if (scoreSortDirection === 'asc') {
+return aVal > bVal ? 1 : -1;
+} else {
+return aVal < bVal ? 1 : -1;
+}
+});
+
+const tbody = document.getElementById('scoreBody');
+
+if (scoreData.length === 0) {
+tbody.innerHTML = `
+<tr class="empty-state">
+<td colspan="7">
+<h3>No scores yet!</h3>
+<p>Add your first score above to get started.</p>
+</td>
+</tr>
+`;
+return;
+}
+
+tbody.innerHTML = scoreData.map((player, index) => {
+    const rank = index + 1;
+    let rankClass = 'rank';
+    if (rank === 1) rankClass += ' first';
+    else if (rank === 2) rankClass += ' second';
+    else if (rank === 3) rankClass += ' third';
+    
+    let toParClass = 'score even-par';
+    let toParDisplay = 'E';
+    
+    if (player.totalToPar > 0) {
+        toParClass = 'score over-par';
+        toParDisplay = `+${player.totalToPar}`;
+    } else if (player.totalToPar < 0) {
+        toParClass = 'score under-par';
+        toParDisplay = `${player.totalToPar}`;
+    } else if (player.totalToPar === 0 && player.rounds > 0) {
+        toParDisplay = 'E';
+    }
+    
+    const bestRoundToPar = player.bestRound > 0 ? player.bestRound - PAR : 0;
+    let bestRoundDisplay = player.bestRound > 0 ? `${player.bestRound}` : '-';
+    if (player.bestRound > 0) {
+        if (bestRoundToPar > 0) {
+            bestRoundDisplay += ` (+${bestRoundToPar})`;
+        } else if (bestRoundToPar < 0) {
+            bestRoundDisplay += ` (${bestRoundToPar})`;
+        } else {
+            bestRoundDisplay += ` (E)`;
+        }
+    }
+    
+    return `
+        <tr>
+            <td class="${rankClass}">#${rank}</td>
+            <td class="player-name">${player.name}</td>
+            <td class="${toParClass}">${toParDisplay}</td>
+            <td>${player.rounds}</td>
+            <td>${player.rounds > 0 ? player.average.toFixed(1) : '-'}</td>
+            <td>${bestRoundDisplay}</td>
+            <td class="actions">
+                <button class="btn-small btn-edit" onclick="editScorePlayer(${player.id})">Edit</button>
+                <button class="btn-small btn-delete" onclick="deleteScorePlayer(${player.id})">Delete</button>
+            </td>
+        </tr>
+    `;
+}).join('');
+}
+
+// Keyboard shortcuts
+document.getElementById('wlPlayerName').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') addWinLoss();
+});
+
+document.getElementById('parPlayerName').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') addScore();
+});
+
+document.getElementById('playerScore').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') addScore();
+});
+</script>
