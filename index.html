@@ -21,6 +21,10 @@ body{font-family:'Arial',sans-serif;background:linear-gradient(135deg,#2E8B57 0%
 .controls input,.controls button{padding:10px;border-radius:8px;border:1px solid #ddd;}
 .controls button{background:#2E8B57;color:white;border:none;cursor:pointer;}
 .controls .delete-btn{background:#DC143C;}
+.controls .backup-btn{background:#1a5c3a;}
+.backup-bar{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin-top:14px;padding-top:14px;border-top:1px solid rgba(46,139,87,.25);}
+.backup-bar .backup-label{font-size:.9rem;color:#333;font-weight:bold;margin-right:4px;}
+.backup-hint{font-size:.8rem;color:#555;flex:1 1 100%;margin:0;}
 .leaderboard-table{width:100%;border-collapse:collapse;background:white;border-radius:10px;overflow:hidden;}
 .leaderboard-table th,.leaderboard-table td{padding:10px;border-bottom:1px solid #ddd;}
 .leaderboard-table th{background:#2E8B57;color:white;}
@@ -31,6 +35,21 @@ body{font-family:'Arial',sans-serif;background:linear-gradient(135deg,#2E8B57 0%
 .losses{color:#DC143C;font-weight:bold;}
 .empty-state{text-align:center;padding:30px;color:#666;}
 .tournament-info{background:rgba(255,255,255,.95);border-radius:15px;padding:30px;margin-top:30px;}
+.playoff-wrap{max-width:900px;margin:0 auto;}
+.playoff-bracket{display:flex;justify-content:center;align-items:stretch;gap:24px;flex-wrap:wrap;padding:10px 0;}
+.playoff-col{display:flex;flex-direction:column;justify-content:center;gap:28px;}
+.playoff-match{border:2px solid #2E8B57;border-radius:12px;padding:14px 16px;background:#fff;min-width:220px;box-shadow:0 2px 8px rgba(0,0,0,.08);}
+.playoff-match h4{font-size:.8rem;text-transform:uppercase;letter-spacing:.06em;color:#2E8B57;margin-bottom:10px;}
+.playoff-match.final-match{border-color:#B8860B;box-shadow:0 0 0 2px rgba(184,134,11,.25);}
+.playoff-match.final-match h4{color:#8B6914;}
+.playoff-player{padding:10px 12px;border-radius:8px;cursor:pointer;border:1px solid transparent;transition:background .15s,border-color .15s;}
+.playoff-player:hover{background:rgba(46,139,87,.12);}
+.playoff-player.winner-pick{background:#2E8B57;color:#fff;font-weight:bold;}
+.playoff-player.muted{color:#999;font-style:italic;cursor:default;}
+.playoff-player.muted:hover{background:transparent;}
+.playoff-vs{text-align:center;font-size:.75rem;color:#888;padding:4px 0;}
+.playoff-connector{display:flex;align-items:center;color:rgba(255,255,255,.85);font-size:1.5rem;font-weight:bold;padding:0 4px;}
+.playoff-hint{font-size:.85rem;color:#555;text-align:center;margin-top:16px;max-width:520px;margin-left:auto;margin-right:auto;}
 </style>
 </head>
 <body>
@@ -44,7 +63,7 @@ body{font-family:'Arial',sans-serif;background:linear-gradient(135deg,#2E8B57 0%
 
 <div class="tabs">
 <button class="tab active" onclick="showTab('wins')">🏆 Wins & Losses</button>
-<button class="tab" onclick="showTab('scores')">📊 Score to Par</button>
+<button class="tab" onclick="showTab('playoff')">🏁 Playoff Bracket</button>
 </div>
 
 <!-- WINS TAB -->
@@ -68,9 +87,12 @@ body{font-family:'Arial',sans-serif;background:linear-gradient(135deg,#2E8B57 0%
 </table>
 </div>
 
-<!-- SCORES TAB (unchanged logic simplified) -->
-<div id="scores" class="tab-content">
-<p>Score to Par section kept intact if needed.</p>
+<!-- PLAYOFF BRACKET (top 4 from standings: 1v4, 2v3 → Final) -->
+<div id="playoff" class="tab-content">
+<div class="playoff-wrap">
+<div id="playoffBracket"></div>
+<p class="playoff-hint" id="playoffHint">Semifinal winners are chosen by clicking a player after each match. Names update when the standings change.</p>
+</div>
 </div>
 
 <!-- RESULTS SECTION -->
@@ -84,6 +106,13 @@ body{font-family:'Arial',sans-serif;background:linear-gradient(135deg,#2E8B57 0%
 <input type="text" id="matchScore" placeholder="Score (4&3)">
 <button onclick="addMatch()">Add</button>
 <button onclick="clearMatches()" class="delete-btn">Clear</button>
+</div>
+<div class="backup-bar controls">
+<span class="backup-label">Sync across devices</span>
+<button type="button" class="backup-btn" onclick="exportTournamentData()">Export JSON</button>
+<button type="button" class="backup-btn" onclick="document.getElementById('importFileInput').click()">Import JSON</button>
+<input type="file" id="importFileInput" accept=".json,application/json" style="display:none">
+<p class="backup-hint">Export saves all match results and playoff picks. Import replaces the data in this browser (download a backup first if unsure).</p>
 </div>
 
 <table class="leaderboard-table">
@@ -110,16 +139,145 @@ body{font-family:'Arial',sans-serif;background:linear-gradient(135deg,#2E8B57 0%
 
 let matchResults = [];
 let standings = [];
+let playoffPicks = { semi1: null, semi2: null };
 
 window.onload = function(){
 const saved = localStorage.getItem("matchResults");
-if(saved) matchResults = JSON.parse(saved);
+if(saved) try{matchResults=JSON.parse(saved);}catch(e){matchResults=[];}
+const picks = localStorage.getItem("playoffPicks");
+if(picks) try{playoffPicks=JSON.parse(picks);}catch(e){}
+document.getElementById("importFileInput").addEventListener("change",importFromFileInput);
 renderResults();
 calculateStandings();
 };
 
 function save(){
 localStorage.setItem("matchResults", JSON.stringify(matchResults));
+}
+
+const BACKUP_VERSION=1;
+
+function buildExportPayload(){
+return{
+version:BACKUP_VERSION,
+exportedAt:new Date().toISOString(),
+title:"26 Golden Wedge Invitational",
+matchResults,
+playoffPicks:{semi1:playoffPicks.semi1??null,semi2:playoffPicks.semi2??null}
+};
+}
+
+function exportTournamentData(){
+const payload=buildExportPayload();
+const blob=new Blob([JSON.stringify(payload,null,2)],{type:"application/json"});
+const a=document.createElement("a");
+const d=new Date().toISOString().slice(0,10);
+a.href=URL.createObjectURL(blob);
+a.download=`golden-wedge-backup-${d}.json`;
+a.click();
+URL.revokeObjectURL(a.href);
+}
+
+function normalizeImportedMatch(m,i){
+if(!m||typeof m!=="object")return null;
+const date=String(m.date??"").trim();
+const winner=String(m.winner??"").trim();
+const loser=String(m.loser??"").trim();
+const score=String(m.score??"").trim();
+if(!date||!winner||!loser||!score)return null;
+const id=typeof m.id==="number"&&Number.isFinite(m.id)?m.id:Date.now()+i;
+return{id,date,winner,loser,score};
+}
+
+function parseImportData(raw){
+if(Array.isArray(raw)){
+return{matchResults:raw,playoffPicks:{semi1:null,semi2:null}};
+}
+if(raw&&typeof raw==="object"&&Array.isArray(raw.matchResults)){
+const p=raw.playoffPicks;
+const picks={semi1:null,semi2:null};
+if(p&&typeof p==="object"){
+if(typeof p.semi1==="string")picks.semi1=p.semi1;
+if(p.semi1===null)picks.semi1=null;
+if(typeof p.semi2==="string")picks.semi2=p.semi2;
+if(p.semi2===null)picks.semi2=null;
+}
+return{matchResults:raw.matchResults,playoffPicks:picks};
+}
+return null;
+}
+
+function applyImportedState(parsed){
+const next=[];
+parsed.matchResults.forEach((m,i)=>{
+const n=normalizeImportedMatch(m,i);
+if(n)next.push(n);
+});
+matchResults=next;
+playoffPicks={semi1:parsed.playoffPicks.semi1,semi2:parsed.playoffPicks.semi2};
+save();
+savePlayoffPicks();
+renderResults();
+calculateStandings();
+}
+
+function importFromFileInput(e){
+const input=e.target;
+const file=input.files&&input.files[0];
+input.value="";
+if(!file)return;
+const reader=new FileReader();
+reader.onload=function(){
+try{
+const raw=JSON.parse(reader.result);
+const parsed=parseImportData(raw);
+if(!parsed){
+alert("Invalid file: need an array of matches or an object with a matchResults array.");
+return;
+}
+if(!confirm("Replace all results and playoff picks in this browser with the imported file?")){
+return;
+}
+applyImportedState(parsed);
+}catch(err){
+alert("Could not read JSON: "+(err.message||"invalid file"));
+}
+};
+reader.readAsText(file,"UTF-8");
+}
+function savePlayoffPicks(){
+localStorage.setItem("playoffPicks", JSON.stringify(playoffPicks));
+}
+function sanitizePlayoffPicks(){
+const p=[0,1,2,3].map(i=>standings[i]?.name).filter(Boolean);
+const semi1=[p[0],p[3]].filter(Boolean);
+const semi2=[p[1],p[2]].filter(Boolean);
+if(playoffPicks.semi1&&!semi1.includes(playoffPicks.semi1))playoffPicks.semi1=null;
+if(playoffPicks.semi2&&!semi2.includes(playoffPicks.semi2))playoffPicks.semi2=null;
+}
+function escHtml(s){
+return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/"/g,"&quot;");
+}
+function escAttr(s){
+return String(s).replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;");
+}
+function setSemiWinner(which,name){
+if(which==="semi1"){
+const ok=[standings[0]?.name,standings[3]?.name].filter(n=>n===name).length;
+if(!ok)return;
+playoffPicks.semi1=playoffPicks.semi1===name?null:name;
+}else{
+const ok=[standings[1]?.name,standings[2]?.name].filter(n=>n===name).length;
+if(!ok)return;
+playoffPicks.semi2=playoffPicks.semi2===name?null:name;
+}
+savePlayoffPicks();
+renderBracket();
+}
+function onBracketClick(e){
+const row=e.target.closest("[data-semi]");
+if(!row)return;
+setSemiWinner(row.dataset.semi,row.dataset.name);
 }
 
 function showTab(tab){
@@ -145,7 +303,9 @@ winnerName.value=""; loserName.value=""; matchScore.value="";
 function clearMatches(){
 if(confirm("Clear all results?")){
 matchResults=[];
+playoffPicks={semi1:null,semi2:null};
 save();
+savePlayoffPicks();
 renderResults();
 calculateStandings();
 }
@@ -217,6 +377,54 @@ return 0;
 });
 
 renderStandings();
+sanitizePlayoffPicks();
+savePlayoffPicks();
+renderBracket();
+}
+
+function renderBracket(){
+const el=document.getElementById("playoffBracket");
+const hint=document.getElementById("playoffHint");
+if(!el)return;
+if(standings.length<4){
+el.innerHTML=`<p class="empty-state" style="padding:24px;">Add match results until at least four players appear in the standings. The bracket uses ranks #1–#4.</p>`;
+if(hint)hint.style.display="none";
+return;
+}
+if(hint)hint.style.display="block";
+const a=standings[0].name,b=standings[1].name,c=standings[2].name,d=standings[3].name;
+const w1=playoffPicks.semi1,w2=playoffPicks.semi2;
+const finalLeft=w1||"—";
+const finalRight=w2||"—";
+const pickCls=(winner,name)=>winner===name?"playoff-player winner-pick":"playoff-player";
+el.innerHTML=`
+<div class="playoff-bracket">
+<div class="playoff-col">
+<div class="playoff-match">
+<h4>Semifinal 1 · #1 vs #4</h4>
+<div class="${pickCls(w1,a)}" data-semi="semi1" data-name="${escAttr(a)}">${escHtml(a)}</div>
+<div class="playoff-vs">vs</div>
+<div class="${pickCls(w1,d)}" data-semi="semi1" data-name="${escAttr(d)}">${escHtml(d)}</div>
+</div>
+<div class="playoff-match">
+<h4>Semifinal 2 · #2 vs #3</h4>
+<div class="${pickCls(w2,b)}" data-semi="semi2" data-name="${escAttr(b)}">${escHtml(b)}</div>
+<div class="playoff-vs">vs</div>
+<div class="${pickCls(w2,c)}" data-semi="semi2" data-name="${escAttr(c)}">${escHtml(c)}</div>
+</div>
+</div>
+<div class="playoff-connector">→</div>
+<div class="playoff-col">
+<div class="playoff-match final-match">
+<h4>Final</h4>
+<div class="playoff-player ${w1?'':'muted'}">${escHtml(finalLeft)}</div>
+<div class="playoff-vs">vs</div>
+<div class="playoff-player ${w2?'':'muted'}">${escHtml(finalRight)}</div>
+</div>
+</div>
+</div>`;
+const root=el.firstElementChild;
+if(root)root.addEventListener("click",onBracketClick);
 }
 
 function renderStandings(){
