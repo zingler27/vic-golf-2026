@@ -1,10 +1,138 @@
 {
   "version": 1,
-  "exportedAt": "2026-03-31T00:00:00.000Z",
+  "exportedAt": "2026-04-01T03:05:20.006Z",
   "title": "26 Golden Wedge Invitational",
-  "matchResults": [],
+  "matchResults": [
+    {
+      "id": 1771811082974,
+      "date": "2026-02-15",
+      "winner": "JW",
+      "loser": "Mike",
+      "score": "4&3"
+    },
+    {
+      "id": 1771811099559,
+      "date": "2026-02-21",
+      "winner": "Jeremy",
+      "loser": "JZ",
+      "score": "4&3"
+    },
+    {
+      "id": 1771811115570,
+      "date": "2026-02-22",
+      "winner": "Aaron",
+      "loser": "Manny",
+      "score": "3&1"
+    },
+    {
+      "id": 1772374119925,
+      "date": "2026-02-25",
+      "winner": "Aaron",
+      "loser": "Austin",
+      "score": "3&2"
+    },
+    {
+      "id": 1772374138368,
+      "date": "2026-02-25",
+      "winner": "Aaron",
+      "loser": "Mike",
+      "score": "2&1"
+    },
+    {
+      "id": 1772374150775,
+      "date": "2026-02-25",
+      "winner": "Mike",
+      "loser": "Austin",
+      "score": "1UP"
+    },
+    {
+      "id": 1772374177783,
+      "date": "2026-02-28",
+      "winner": "JW",
+      "loser": "Alex",
+      "score": "3&2"
+    },
+    {
+      "id": 1772405914084,
+      "date": "2026-03-01",
+      "winner": "Cliff",
+      "loser": "JZ",
+      "score": "FFT"
+    },
+    {
+      "id": 1772408175228,
+      "date": "2026-03-01",
+      "winner": "Jeremy",
+      "loser": "Aaron",
+      "score": "7&5"
+    },
+    {
+      "id": 1772676634908,
+      "date": "2026-03-04",
+      "winner": "Cliff",
+      "loser": "Mike",
+      "score": "2UP"
+    },
+    {
+      "id": 1772999283739,
+      "date": "2026-03-08",
+      "winner": "Alex",
+      "loser": "Manny",
+      "score": "6&5"
+    },
+    {
+      "id": 1774204510551,
+      "date": "2026-03-22",
+      "winner": "Alex",
+      "loser": "JZ",
+      "score": "4&3"
+    },
+    {
+      "id": 1774204520632,
+      "date": "2026-03-22",
+      "winner": "JZ",
+      "loser": "Austin",
+      "score": "1UP"
+    },
+    {
+      "id": 1774221795542,
+      "date": "2026-03-22",
+      "winner": "Cliff",
+      "loser": "JW",
+      "score": "6&4"
+    },
+    {
+      "id": 1774544715596,
+      "date": "2026-03-25",
+      "winner": "Alex",
+      "loser": "Cliff",
+      "score": "2UP"
+    },
+    {
+      "id": 1774657397232,
+      "date": "2026-03-27",
+      "winner": "Mike",
+      "loser": "Jeremy",
+      "score": "5&3"
+    },
+    {
+      "id": 1774657407112,
+      "date": "2026-03-27",
+      "winner": "Mike",
+      "loser": "Alex",
+      "score": "8&7"
+    },
+    {
+      "id": 1774657419260,
+      "date": "2026-03-27",
+      "winner": "Jeremy",
+      "loser": "Alex",
+      "score": "4&6"
+    }
+  ],
   "playoffPicks": {
     "semi1": null,
     "semi2": null
   }
 }
+
