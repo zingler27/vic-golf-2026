@@ -521,5 +521,152 @@ a {
   .playoff-match {
     min-width: 170px;
   }
+
+  .score-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .score-controls select,
+  .score-controls input,
+  .score-controls button {
+    width: 100%;
+  }
 }
+
+.score-entry-card {
+  border-top: 3px solid var(--vic-green);
+  background: linear-gradient(180deg, var(--vic-white) 0%, var(--vic-cream) 100%);
+}
+
+.score-entry-card h3 {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.score-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: flex-end;
+  margin-bottom: 1rem;
+}
+
+.score-controls label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--vic-green);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.score-controls select,
+.score-controls input[type="number"] {
+  padding: 0.55rem 0.65rem;
+  border: 1px solid var(--vic-cream-dark);
+  border-radius: 4px;
+  font-family: var(--font-sans);
+  font-size: 0.95rem;
+  min-width: 7rem;
+  background: var(--vic-white);
+}
+
+.score-controls button {
+  padding: 0.6rem 1.1rem;
+  border: none;
+  border-radius: 4px;
+  font-family: var(--font-sans);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.score-controls .btn-save {
+  background: var(--vic-green-dark);
+  color: var(--vic-white);
+}
+
+.score-controls .btn-save:hover {
+  background: var(--vic-green);
+}
+
+.score-controls .btn-clear {
+  background: transparent;
+  color: var(--vic-text-muted);
+  border: 1px solid var(--vic-cream-dark);
+}
+
+.score-controls .btn-clear:hover {
+  border-color: var(--vic-gold-dark);
+  color: var(--vic-green-dark);
+}
+
+.score-hint {
+  font-size: 0.88rem;
+  color: var(--vic-text-muted);
+  margin-bottom: 1rem;
+}
+
+.sync-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  padding-top: 1rem;
+  margin-top: 1rem;
+  border-top: 1px solid var(--vic-cream-dark);
+}
+
+.sync-bar .sync-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--vic-green-dark);
+}
+
+.sync-bar button {
+  padding: 0.5rem 0.9rem;
+  border: 1px solid var(--vic-green);
+  border-radius: 4px;
+  background: var(--vic-white);
+  color: var(--vic-green-dark);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.sync-bar button:hover {
+  background: var(--vic-cream);
+}
+
+.sync-hint {
+  flex: 1 1 100%;
+  font-size: 0.8rem;
+  color: var(--vic-text-muted);
+  margin: 0;
+}
+
+.data-table .round-cell.editable {
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.data-table .round-cell.editable:hover {
+  background: rgba(197, 165, 90, 0.2);
+}
+
+.data-table .round-cell.has-score {
+  color: var(--vic-green-dark);
+  font-weight: 600;
+}
+
+.data-table .round-cell.editing-hint {
+  box-shadow: inset 0 0 0 2px var(--vic-gold);
+}
+
 

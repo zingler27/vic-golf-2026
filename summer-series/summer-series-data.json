@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "exportedAt": "2026-01-01T00:00:00.000Z",
+  "title": "2026 Summer Series",
+  "players": [
+    { "name": "JZ", "rounds": [null, null, null, null, null, null, null, null] },
+    { "name": "JW", "rounds": [null, null, null, null, null, null, null, null] },
+    { "name": "Alex", "rounds": [null, null, null, null, null, null, null, null] },
+    { "name": "Aaron", "rounds": [null, null, null, null, null, null, null, null] },
+    { "name": "Manny", "rounds": [null, null, null, null, null, null, null, null] },
+    { "name": "Mike", "rounds": [null, null, null, null, null, null, null, null] },
+    { "name": "Jeremy", "rounds": [null, null, null, null, null, null, null, null] },
+    { "name": "Riley", "rounds": [null, null, null, null, null, null, null, null] },
+    { "name": "Austin", "rounds": [null, null, null, null, null, null, null, null] },
+    { "name": "Cliff", "rounds": [null, null, null, null, null, null, null, null] }
+  ]
+}

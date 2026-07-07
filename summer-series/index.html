@@ -47,6 +47,49 @@
             <tbody id="standingsBody"></tbody>
           </table>
         </div>
+        <p class="score-hint" style="margin-top:1rem;margin-bottom:0;">
+          <a href="#enter-scores" style="color:var(--vic-green);font-weight:600;">Enter or edit scores &darr;</a>
+        </p>
+      </section>
+
+      <!-- Enter Scores -->
+      <section class="section-card score-entry-card" id="enter-scores">
+        <h3>Enter Scores</h3>
+        <p class="score-hint">Enter total Stableford points for a completed round. Click any round cell on the leaderboard to edit.</p>
+
+        <form class="score-controls" id="scoreForm" onsubmit="saveRoundScore(event)">
+          <label>
+            Player
+            <select id="scorePlayer" required></select>
+          </label>
+          <label>
+            Round
+            <select id="scoreRound" required>
+              <option value="0">Round 1</option>
+              <option value="1">Round 2</option>
+              <option value="2">Round 3</option>
+              <option value="3">Round 4</option>
+              <option value="4">Round 5</option>
+              <option value="5">Round 6</option>
+              <option value="6">Round 7</option>
+              <option value="7">Round 8</option>
+            </select>
+          </label>
+          <label>
+            Points
+            <input type="number" id="scorePoints" min="0" max="99" step="1" placeholder="e.g. 32" required>
+          </label>
+          <button type="submit" class="btn-save">Save Score</button>
+          <button type="button" class="btn-clear" onclick="clearSelectedScore()">Clear</button>
+        </form>
+
+        <div class="sync-bar">
+          <span class="sync-label">Sync across devices</span>
+          <button type="button" onclick="exportSeriesData()">Export JSON</button>
+          <button type="button" onclick="document.getElementById('importFileInput').click()">Import JSON</button>
+          <input type="file" id="importFileInput" accept=".json,application/json" hidden>
+          <p class="sync-hint"><code>summer-series-data.json</code> loads automatically when its <code>exportedAt</code> is newer than your last change here. Export and commit that file to publish updates for everyone.</p>
+        </div>
       </section>
 
       <!-- Stroke Play Playoffs -->
@@ -185,20 +228,43 @@
 
     const ROUNDS = 8;
     const PLACEHOLDER = "—";
+    const STORAGE_KEY = "summerSeries2026";
+    const TOUCH_KEY = "summerSeries2026Touch";
+    const BACKUP_VERSION = 1;
 
-    function loadScores() {
-      try {
-        const saved = localStorage.getItem("summerSeries2026");
-        if (saved) return JSON.parse(saved);
-      } catch (e) {}
+    function freshData() {
       return PLAYERS.map(name => ({
         name,
         rounds: Array(ROUNDS).fill(null)
       }));
     }
 
+    function bumpLocalTouch(iso) {
+      const touch = iso && !isNaN(Date.parse(iso)) ? iso : new Date().toISOString();
+      localStorage.setItem(TOUCH_KEY, touch);
+    }
+
+    function getLocalTouchMs() {
+      const k = localStorage.getItem(TOUCH_KEY);
+      if (k) {
+        const ms = Date.parse(k);
+        return isNaN(ms) ? 0 : ms;
+      }
+      const data = loadScores();
+      if (data.some(p => p.rounds.some(r => r !== null))) return Date.now();
+      return 0;
+    }
+
+    function loadScores() {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) return JSON.parse(saved);
+      } catch (e) {}
+      return freshData();
+    }
+
     function saveScores(data) {
-      localStorage.setItem("summerSeries2026", JSON.stringify(data));
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
     }
 
     function totalPoints(player) {
@@ -213,6 +279,70 @@
       });
     }
 
+    function findPlayer(data, name) {
+      return data.find(p => p.name === name);
+    }
+
+    function populatePlayerSelect() {
+      const select = document.getElementById("scorePlayer");
+      select.innerHTML = PLAYERS.map(name =>
+        `<option value="${name}">${name}</option>`
+      ).join("");
+    }
+
+    function fillScoreForm(playerName, roundIndex, points) {
+      document.getElementById("scorePlayer").value = playerName;
+      document.getElementById("scoreRound").value = String(roundIndex);
+      document.getElementById("scorePoints").value = points === null ? "" : points;
+      document.getElementById("enter-scores").scrollIntoView({ behavior: "smooth", block: "nearest" });
+      document.getElementById("scorePoints").focus();
+    }
+
+    function saveRoundScore(event) {
+      event.preventDefault();
+      const playerName = document.getElementById("scorePlayer").value;
+      const roundIndex = parseInt(document.getElementById("scoreRound").value, 10);
+      const raw = document.getElementById("scorePoints").value.trim();
+      const points = parseInt(raw, 10);
+
+      if (isNaN(points) || points < 0) {
+        alert("Enter a valid points total (0 or higher).");
+        return;
+      }
+
+      const data = loadScores();
+      const player = findPlayer(data, playerName);
+      if (!player) return;
+
+      player.rounds[roundIndex] = points;
+      saveScores(data);
+      bumpLocalTouch();
+      renderLeaderboard();
+      document.getElementById("scorePoints").value = "";
+    }
+
+    function clearSelectedScore() {
+      const playerName = document.getElementById("scorePlayer").value;
+      const roundIndex = parseInt(document.getElementById("scoreRound").value, 10);
+      const data = loadScores();
+      const player = findPlayer(data, playerName);
+      if (!player || player.rounds[roundIndex] === null) return;
+
+      if (!confirm(`Clear ${playerName}'s Round ${roundIndex + 1} score?`)) return;
+
+      player.rounds[roundIndex] = null;
+      saveScores(data);
+      bumpLocalTouch();
+      renderLeaderboard();
+      document.getElementById("scorePoints").value = "";
+    }
+
+    function onRoundCellClick(event) {
+      const cell = event.target.closest("[data-player][data-round]");
+      if (!cell) return;
+      fillScoreForm(cell.dataset.player, parseInt(cell.dataset.round, 10), cell.dataset.points === "" ? null : parseInt(cell.dataset.points, 10));
+    }
+
     function renderLeaderboard() {
       const data = loadScores();
       const sorted = sortedStandings(data);
@@ -221,9 +351,11 @@
       body.innerHTML = sorted.map((player, i) => {
         const rank = i + 1;
         const total = totalPoints(player);
-        const roundCells = player.rounds.map(pts =>
-          `<td class="round-cell">${pts === null ? PLACEHOLDER : pts}</td>`
-        ).join("");
+        const roundCells = player.rounds.map((pts, ri) => {
+          const display = pts === null ? PLACEHOLDER : pts;
+          const cls = pts === null ? "editable" : "editable has-score";
+          return `<td class="round-cell ${cls}" data-player="${player.name}" data-round="${ri}" data-points="${pts ?? ""}">${display}</td>`;
+        }).join("");
         const playoffClass = rank <= 6 ? " playoff-cut" : "";
         const rankClass = rank <= 3 ? ` rank-${rank}` : "";
 
@@ -252,31 +384,129 @@
       document.getElementById("bye-seed2").textContent = label(1);
     }
 
-    function initIfEmpty() {
-      const fresh = PLAYERS.map(name => ({
-        name,
-        rounds: Array(ROUNDS).fill(null)
-      }));
+    function buildExportPayload() {
+      return {
+        version: BACKUP_VERSION,
+        exportedAt: new Date().toISOString(),
+        title: "2026 Summer Series",
+        players: loadScores()
+      };
+    }
 
+    function exportSeriesData() {
+      const payload = buildExportPayload();
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+      const a = document.createElement("a");
+      const d = new Date().toISOString().slice(0, 10);
+      a.href = URL.createObjectURL(blob);
+      a.download = `summer-series-backup-${d}.json`;
+      a.click();
+      URL.revokeObjectURL(a.href);
+    }
+
+    function normalizeImportedPlayers(raw) {
+      if (!Array.isArray(raw)) return null;
+      const result = [];
+      for (const item of raw) {
+        if (!item || typeof item.name !== "string" || !Array.isArray(item.rounds)) continue;
+        const rounds = item.rounds.slice(0, ROUNDS).map(r => {
+          if (r === null || r === undefined || r === "") return null;
+          const n = parseInt(r, 10);
+          return isNaN(n) || n < 0 ? null : n;
+        });
+        while (rounds.length < ROUNDS) rounds.push(null);
+        result.push({ name: item.name.trim(), rounds });
+      }
+      return result.length ? result : null;
+    }
+
+    function parseImportData(raw) {
+      if (raw && typeof raw === "object" && Array.isArray(raw.players)) {
+        const players = normalizeImportedPlayers(raw.players);
+        return players ? { players } : null;
+      }
+      return null;
+    }
+
+    function applyImportedState(parsed, opts) {
+      opts = opts || {};
+      const names = parsed.players.map(p => p.name).join(",");
+      if (names !== PLAYERS.join(",")) {
+        alert("Player list in file does not match this season. Import cancelled.");
+        return;
+      }
+      saveScores(parsed.players);
+      bumpLocalTouch(opts.touchISO);
+      renderLeaderboard();
+    }
+
+    function importFromFileInput(e) {
+      const file = e.target.files && e.target.files[0];
+      e.target.value = "";
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function () {
+        try {
+          const raw = JSON.parse(reader.result);
+          const parsed = parseImportData(raw);
+          if (!parsed) {
+            alert("Invalid file: need an object with a players array.");
+            return;
+          }
+          if (!confirm("Replace all scores in this browser with the imported file?")) return;
+          applyImportedState(parsed, { touchISO: raw.exportedAt || null });
+        } catch (err) {
+          alert("Could not read JSON: " + (err.message || "invalid file"));
+        }
+      };
+      reader.readAsText(file, "UTF-8");
+    }
+
+    async function tryLoadRemoteData() {
       try {
-        const saved = localStorage.getItem("summerSeries2026");
+        const res = await fetch("summer-series-data.json", { cache: "no-store" });
+        if (!res.ok) return;
+        const raw = await res.json();
+        const parsed = parseImportData(raw);
+        if (!parsed) return;
+        const remoteMs = Date.parse(raw.exportedAt || "") || 0;
+        const localMs = getLocalTouchMs();
+        if (remoteMs > localMs) {
+          applyImportedState(parsed, { touchISO: raw.exportedAt || new Date().toISOString() });
+        }
+      } catch (e) {}
+    }
+
+    function initData() {
+      const expected = PLAYERS.join(",");
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY);
         if (!saved) {
-          saveScores(fresh);
+          saveScores(freshData());
           return;
         }
         const data = JSON.parse(saved);
         const savedNames = data.map(p => p.name).join(",");
-        const expectedNames = PLAYERS.join(",");
-        if (data.length !== PLAYERS.length || savedNames !== expectedNames) {
-          saveScores(fresh);
+        if (data.length !== PLAYERS.length || savedNames !== expected) {
+          saveScores(freshData());
         }
       } catch (e) {
-        saveScores(fresh);
+        saveScores(freshData());
       }
     }
 
-    initIfEmpty();
-    renderLeaderboard();
+    window.onload = async function () {
+      initData();
+      populatePlayerSelect();
+      document.getElementById("standingsBody").addEventListener("click", onRoundCellClick);
+      document.getElementById("importFileInput").addEventListener("change", importFromFileInput);
+      await tryLoadRemoteData();
+      if (!localStorage.getItem(TOUCH_KEY) && loadScores().some(p => p.rounds.some(r => r !== null))) {
+        bumpLocalTouch();
+      }
+      renderLeaderboard();
+    };
   </script>
 
 </body>
