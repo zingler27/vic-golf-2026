@@ -1,0 +1,196 @@
+/* Victoria Club–inspired palette */
+:root {
+  --vic-green-dark: #1a3328;
+  --vic-green: #2d4a3a;
+  --vic-green-light: #3d5c4a;
+  --vic-gold: #c5a55a;
+  --vic-gold-dark: #a68b3c;
+  --vic-cream: #f7f4ee;
+  --vic-cream-dark: #ebe6dc;
+  --vic-white: #ffffff;
+  --vic-text: #1c1c1c;
+  --vic-text-muted: #5a5a5a;
+  --font-serif: "Playfair Display", Georgia, "Times New Roman", serif;
+  --font-sans: "Source Sans 3", "Helvetica Neue", Arial, sans-serif;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-sans);
+  background: var(--vic-cream);
+  color: var(--vic-text);
+  min-height: 100vh;
+  line-height: 1.6;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* ---- Landing page ---- */
+.landing {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background:
+    linear-gradient(180deg, rgba(26, 51, 40, 0.92) 0%, rgba(45, 74, 58, 0.88) 100%),
+    var(--vic-green-dark);
+}
+
+.landing-header {
+  padding: 2rem 1.5rem 1rem;
+  text-align: center;
+}
+
+.landing-eyebrow {
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--vic-gold);
+  margin-bottom: 0.75rem;
+}
+
+.landing-title {
+  font-family: var(--font-serif);
+  font-size: clamp(2.25rem, 6vw, 3.75rem);
+  font-weight: 600;
+  color: var(--vic-white);
+  line-height: 1.15;
+  margin-bottom: 0.5rem;
+}
+
+.landing-subtitle {
+  font-size: 1.05rem;
+  color: rgba(255, 255, 255, 0.82);
+  max-width: 36rem;
+  margin: 0 auto;
+}
+
+.landing-main {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1.5rem 3rem;
+}
+
+.tournament-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  width: 100%;
+  max-width: 960px;
+}
+
+.tournament-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  min-height: 160px;
+  padding: 2rem 1.75rem;
+  background: var(--vic-white);
+  border: 2px solid var(--vic-gold);
+  border-radius: 4px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+  cursor: pointer;
+}
+
+.tournament-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.22);
+  background: var(--vic-cream);
+}
+
+.tournament-card:focus-visible {
+  outline: 3px solid var(--vic-gold);
+  outline-offset: 3px;
+}
+
+.tournament-card-title {
+  font-family: var(--font-serif);
+  font-size: 1.35rem;
+  font-weight: 600;
+  color: var(--vic-green-dark);
+  line-height: 1.35;
+}
+
+.tournament-card-badge {
+  margin-top: 0.75rem;
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--vic-gold-dark);
+  font-weight: 600;
+}
+
+.landing-footer {
+  padding: 1.25rem;
+  text-align: center;
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.55);
+  border-top: 1px solid rgba(197, 165, 90, 0.25);
+}
+
+/* ---- Subpage shell ---- */
+.subpage {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.subpage-nav {
+  background: var(--vic-green-dark);
+  padding: 1rem 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  border-bottom: 3px solid var(--vic-gold);
+}
+
+.subpage-nav a {
+  color: var(--vic-gold);
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.subpage-nav a:hover {
+  color: var(--vic-white);
+}
+
+.subpage-nav h1 {
+  font-family: var(--font-serif);
+  font-size: 1.25rem;
+  color: var(--vic-white);
+  font-weight: 500;
+}
+
+.subpage-content {
+  flex: 1;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 3rem 1.5rem;
+  text-align: center;
+}
+
+.subpage-content h2 {
+  font-family: var(--font-serif);
+  font-size: 2rem;
+  color: var(--vic-green-dark);
+  margin-bottom: 1rem;
+}
+
+.subpage-content p {
+  color: var(--vic-text-muted);
+  font-size: 1.1rem;
+}
