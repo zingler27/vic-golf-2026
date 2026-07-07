@@ -194,3 +194,332 @@ a {
   color: var(--vic-text-muted);
   font-size: 1.1rem;
 }
+
+/* ---- Tournament subpages (Summer Series, etc.) ---- */
+.tournament-page {
+  flex: 1;
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 2rem 1.25rem 3rem;
+}
+
+.tournament-hero {
+  text-align: center;
+  margin-bottom: 2.5rem;
+}
+
+.tournament-hero h2 {
+  font-family: var(--font-serif);
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+  color: var(--vic-green-dark);
+  margin-bottom: 0.5rem;
+}
+
+.tournament-hero p {
+  color: var(--vic-text-muted);
+  font-size: 1.05rem;
+  max-width: 40rem;
+  margin: 0 auto;
+}
+
+.section-card {
+  background: var(--vic-white);
+  border: 1px solid var(--vic-cream-dark);
+  border-top: 3px solid var(--vic-gold);
+  border-radius: 4px;
+  padding: 1.75rem;
+  margin-bottom: 1.75rem;
+  box-shadow: 0 4px 20px rgba(26, 51, 40, 0.06);
+}
+
+.section-card h3 {
+  font-family: var(--font-serif);
+  font-size: 1.5rem;
+  color: var(--vic-green-dark);
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--vic-cream-dark);
+}
+
+.section-card h4 {
+  font-size: 1rem;
+  color: var(--vic-green);
+  margin: 1.25rem 0 0.5rem;
+}
+
+.section-card p,
+.section-card li {
+  color: var(--vic-text-muted);
+  font-size: 0.98rem;
+}
+
+.section-card ul {
+  margin: 0.5rem 0 0 1.25rem;
+}
+
+.section-card li {
+  margin-bottom: 0.35rem;
+}
+
+.table-wrap {
+  overflow-x: auto;
+  margin: 0 -0.25rem;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.data-table th,
+.data-table td {
+  padding: 0.65rem 0.5rem;
+  text-align: center;
+  border-bottom: 1px solid var(--vic-cream-dark);
+}
+
+.data-table th {
+  background: var(--vic-green-dark);
+  color: var(--vic-white);
+  font-weight: 600;
+  font-size: 0.8rem;
+  letter-spacing: 0.03em;
+}
+
+.data-table th:first-child,
+.data-table td:first-child {
+  text-align: left;
+  padding-left: 0.75rem;
+}
+
+.data-table th.player-col,
+.data-table td.player-col {
+  text-align: left;
+  font-weight: 600;
+  color: var(--vic-green-dark);
+  min-width: 5rem;
+}
+
+.data-table tbody tr:hover {
+  background: var(--vic-cream);
+}
+
+.data-table .rank-cell {
+  font-weight: 600;
+  color: var(--vic-gold-dark);
+  width: 2.5rem;
+}
+
+.data-table .round-cell {
+  color: var(--vic-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.data-table .total-cell {
+  font-weight: 700;
+  color: var(--vic-green-dark);
+  background: rgba(197, 165, 90, 0.12);
+}
+
+.data-table tr.playoff-cut td {
+  border-bottom: 2px solid var(--vic-gold);
+}
+
+.data-table .rank-1 .rank-cell { color: #b8860b; }
+.data-table .rank-2 .rank-cell { color: #7a7a7a; }
+.data-table .rank-3 .rank-cell { color: #a0622e; }
+
+.scoring-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 0.75rem;
+  margin: 1rem 0;
+}
+
+.scoring-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.6rem 0.85rem;
+  background: var(--vic-cream);
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+.scoring-item span:first-child {
+  color: var(--vic-text);
+}
+
+.scoring-item span:last-child {
+  font-weight: 700;
+  color: var(--vic-green-dark);
+}
+
+.example-box {
+  margin-top: 1rem;
+  padding: 1rem 1.15rem;
+  background: var(--vic-cream);
+  border-left: 3px solid var(--vic-gold);
+  border-radius: 0 4px 4px 0;
+  font-size: 0.92rem;
+  color: var(--vic-text-muted);
+  text-align: left;
+}
+
+.payout-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.payout-item {
+  text-align: center;
+  padding: 1rem;
+  background: var(--vic-cream);
+  border-radius: 4px;
+  border: 1px solid var(--vic-cream-dark);
+}
+
+.payout-item .place {
+  font-family: var(--font-serif);
+  font-size: 1.1rem;
+  color: var(--vic-green-dark);
+  margin-bottom: 0.25rem;
+}
+
+.payout-item .amount {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--vic-gold-dark);
+}
+
+.payout-buyin {
+  margin-top: 1rem;
+  text-align: center;
+  font-weight: 600;
+  color: var(--vic-green);
+}
+
+/* Playoff bracket */
+.playoff-section .bracket-wrap {
+  max-width: 920px;
+  margin: 0 auto;
+}
+
+.playoff-bracket {
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding: 0.5rem 0;
+}
+
+.playoff-col {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 1.25rem;
+}
+
+.playoff-match {
+  border: 2px solid var(--vic-green);
+  border-radius: 4px;
+  padding: 0.85rem 1rem;
+  background: var(--vic-white);
+  min-width: 200px;
+  box-shadow: 0 2px 8px rgba(26, 51, 40, 0.08);
+}
+
+.playoff-match h4 {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--vic-green);
+  margin: 0 0 0.65rem;
+}
+
+.playoff-match.final-match {
+  border-color: var(--vic-gold);
+  box-shadow: 0 0 0 2px rgba(197, 165, 90, 0.2);
+}
+
+.playoff-match.final-match h4 {
+  color: var(--vic-gold-dark);
+}
+
+.playoff-match.bye-match {
+  border-style: dashed;
+  border-color: var(--vic-gold-dark);
+  background: var(--vic-cream);
+}
+
+.playoff-slot {
+  padding: 0.55rem 0.65rem;
+  border-radius: 3px;
+  font-size: 0.88rem;
+  color: var(--vic-text);
+}
+
+.playoff-slot.seed {
+  font-weight: 600;
+  color: var(--vic-green-dark);
+}
+
+.playoff-slot.tbd {
+  color: var(--vic-text-muted);
+  font-style: italic;
+}
+
+.playoff-vs {
+  text-align: center;
+  font-size: 0.7rem;
+  color: var(--vic-text-muted);
+  padding: 0.2rem 0;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.playoff-connector {
+  display: flex;
+  align-items: center;
+  color: var(--vic-gold-dark);
+  font-size: 1.25rem;
+  font-weight: 600;
+  padding: 0 0.25rem;
+}
+
+.playoff-note {
+  font-size: 0.88rem;
+  color: var(--vic-text-muted);
+  text-align: center;
+  margin-top: 1rem;
+  max-width: 36rem;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.two-col-info {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+@media (max-width: 640px) {
+  .data-table {
+    font-size: 0.78rem;
+  }
+
+  .data-table th,
+  .data-table td {
+    padding: 0.5rem 0.3rem;
+  }
+
+  .playoff-match {
+    min-width: 170px;
+  }
+}
+

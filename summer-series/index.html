@@ -17,11 +17,267 @@
       <h1>Vic Boys Summer Series</h1>
     </nav>
 
-    <main class="subpage-content">
-      <h2>Coming Soon</h2>
-      <p>Summer Series schedules, standings, and results will appear here.</p>
+    <main class="tournament-page">
+
+      <header class="tournament-hero">
+        <h2>2026 Summer Series</h2>
+        <p>8 rounds of net Stableford points play &middot; Top 6 advance to stroke-play playoffs</p>
+      </header>
+
+      <!-- Leaderboard -->
+      <section class="section-card" id="leaderboard">
+        <h3>Leaderboard</h3>
+        <div class="table-wrap">
+          <table class="data-table" id="standingsTable">
+            <thead>
+              <tr>
+                <th>Rank</th>
+                <th class="player-col">Player</th>
+                <th>R1</th>
+                <th>R2</th>
+                <th>R3</th>
+                <th>R4</th>
+                <th>R5</th>
+                <th>R6</th>
+                <th>R7</th>
+                <th>R8</th>
+                <th>Total</th>
+              </tr>
+            </thead>
+            <tbody id="standingsBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Stroke Play Playoffs -->
+      <section class="section-card playoff-section" id="playoffs">
+        <h3>Stroke Play Playoffs</h3>
+        <p style="text-align:center;margin-bottom:1.25rem;">Top 6 after 8 rounds qualify. Seeds #1 and #2 receive first-round byes.</p>
+
+        <div class="bracket-wrap">
+          <div class="playoff-bracket">
+
+            <div class="playoff-col">
+              <div class="playoff-match">
+                <h4>First Round</h4>
+                <div class="playoff-slot seed" id="seed3">#3 TBD</div>
+                <div class="playoff-vs">vs</div>
+                <div class="playoff-slot seed" id="seed6">#6 TBD</div>
+              </div>
+              <div class="playoff-match">
+                <h4>First Round</h4>
+                <div class="playoff-slot seed" id="seed4">#4 TBD</div>
+                <div class="playoff-vs">vs</div>
+                <div class="playoff-slot seed" id="seed5">#5 TBD</div>
+              </div>
+            </div>
+
+            <div class="playoff-connector" aria-hidden="true">&rarr;</div>
+
+            <div class="playoff-col">
+              <div class="playoff-match">
+                <h4>Semifinal</h4>
+                <div class="playoff-slot seed" id="bracket-seed2">#2 TBD</div>
+                <div class="playoff-vs">vs</div>
+                <div class="playoff-slot tbd">Winner #3 vs #6</div>
+              </div>
+              <div class="playoff-match">
+                <h4>Semifinal</h4>
+                <div class="playoff-slot seed" id="bracket-seed1">#1 TBD</div>
+                <div class="playoff-vs">vs</div>
+                <div class="playoff-slot tbd">Winner #4 vs #5</div>
+              </div>
+            </div>
+
+            <div class="playoff-connector" aria-hidden="true">&rarr;</div>
+
+            <div class="playoff-col">
+              <div class="playoff-match final-match">
+                <h4>Final</h4>
+                <div class="playoff-slot tbd">Semifinal winner</div>
+                <div class="playoff-vs">vs</div>
+                <div class="playoff-slot tbd">Semifinal winner</div>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="playoff-col" style="margin-top:1.25rem;align-items:center;">
+            <div class="playoff-match bye-match" style="min-width:200px;">
+              <h4>First Round Byes</h4>
+              <div class="playoff-slot seed" id="bye-seed1">#1 TBD</div>
+              <div class="playoff-slot seed" id="bye-seed2" style="margin-top:0.5rem;">#2 TBD</div>
+            </div>
+          </div>
+
+          <p class="playoff-note">Bracket seeds update automatically from the leaderboard as round scores are entered.</p>
+        </div>
+      </section>
+
+      <!-- Format -->
+      <section class="section-card" id="format">
+        <h3>Format</h3>
+        <p>You will play a series of <strong>8 rounds by September 1st</strong>.</p>
+        <p style="margin-top:0.75rem;">Each round you will keep your net score with Stableford points.</p>
+
+        <h4>Stableford Scoring</h4>
+        <div class="scoring-grid">
+          <div class="scoring-item"><span>Net Double Bogey or worse</span><span>0 pts</span></div>
+          <div class="scoring-item"><span>Net Bogey</span><span>1 pt</span></div>
+          <div class="scoring-item"><span>Net Par</span><span>2 pts</span></div>
+          <div class="scoring-item"><span>Net Birdie</span><span>3 pts</span></div>
+          <div class="scoring-item"><span>Net Eagle</span><span>4 pts</span></div>
+          <div class="scoring-item"><span>Net Albatross</span><span>5 pts</span></div>
+        </div>
+
+        <div class="example-box">
+          <strong>Example:</strong> You get a 5 on Hole 3, but your handicap gives you a stroke — that is <strong>net par</strong>, so you earn <strong>2 points</strong> for that hole. Add up your points at the end of each round.
+        </div>
+
+        <p style="margin-top:1rem;">The <strong>top 6</strong> with the most total points after 8 rounds make the playoffs. Seeds <strong>#1 and #2</strong> receive first-round byes. First round matchups: <strong>#3 vs #6</strong> and <strong>#4 vs #5</strong>. Semifinals: winner of #4 vs #5 plays #1; winner of #3 vs #6 plays #2.</p>
+      </section>
+
+      <!-- Rules & Payout -->
+      <div class="two-col-info">
+        <section class="section-card" id="rules">
+          <h3>Rules</h3>
+          <ul>
+            <li>All play from the <strong>Blue tees</strong></li>
+            <li>Current handicap in effect the day of play (plug into <strong>GHIN</strong>)</li>
+            <li>You must <strong>text the group</strong> the day you plan to play</li>
+            <li>You must play with <strong>at least 1 member of the group</strong> to validate scores</li>
+            <li><strong>Lift, clean, and place</strong> in effect for all fairways when they are over watered — check with your playing partner</li>
+          </ul>
+        </section>
+
+        <section class="section-card" id="payout">
+          <h3>Payout</h3>
+          <p class="payout-buyin">Buy-in: $50</p>
+          <div class="payout-grid">
+            <div class="payout-item">
+              <div class="place">1st</div>
+              <div class="amount">$200</div>
+            </div>
+            <div class="payout-item">
+              <div class="place">2nd</div>
+              <div class="amount">$150</div>
+            </div>
+            <div class="payout-item">
+              <div class="place">3rd</div>
+              <div class="amount">$100</div>
+            </div>
+            <div class="payout-item">
+              <div class="place">4th</div>
+              <div class="amount">$50</div>
+            </div>
+          </div>
+        </section>
+      </div>
+
     </main>
   </div>
+
+  <script>
+    const PLAYERS = [
+      "JZ", "JW", "Alex", "Aaron", "Manny", "Mike",
+      "Jeremy", "Riley", "Austin", "Cliff"
+    ];
+
+    const ROUNDS = 8;
+    const PLACEHOLDER = "—";
+
+    function loadScores() {
+      try {
+        const saved = localStorage.getItem("summerSeries2026");
+        if (saved) return JSON.parse(saved);
+      } catch (e) {}
+      return PLAYERS.map(name => ({
+        name,
+        rounds: Array(ROUNDS).fill(null)
+      }));
+    }
+
+    function saveScores(data) {
+      localStorage.setItem("summerSeries2026", JSON.stringify(data));
+    }
+
+    function totalPoints(player) {
+      return player.rounds.reduce((sum, pts) => sum + (pts ?? 0), 0);
+    }
+
+    function sortedStandings(data) {
+      return [...data].sort((a, b) => {
+        const diff = totalPoints(b) - totalPoints(a);
+        if (diff !== 0) return diff;
+        return a.name.localeCompare(b.name);
+      });
+    }
+
+    function renderLeaderboard() {
+      const data = loadScores();
+      const sorted = sortedStandings(data);
+      const body = document.getElementById("standingsBody");
+
+      body.innerHTML = sorted.map((player, i) => {
+        const rank = i + 1;
+        const total = totalPoints(player);
+        const roundCells = player.rounds.map(pts =>
+          `<td class="round-cell">${pts === null ? PLACEHOLDER : pts}</td>`
+        ).join("");
+        const playoffClass = rank <= 6 ? " playoff-cut" : "";
+        const rankClass = rank <= 3 ? ` rank-${rank}` : "";
+
+        return `<tr class="${playoffClass}${rankClass}">
+          <td class="rank-cell">#${rank}</td>
+          <td class="player-col">${player.name}</td>
+          ${roundCells}
+          <td class="total-cell">${total || PLACEHOLDER}</td>
+        </tr>`;
+      }).join("");
+
+      updatePlayoffBracket(sorted);
+    }
+
+    function updatePlayoffBracket(sorted) {
+      const top6 = sorted.slice(0, 6);
+      const label = (i) => top6[i] ? `#${i + 1} ${top6[i].name}` : `#${i + 1} TBD`;
+
+      document.getElementById("seed3").textContent = label(2);
+      document.getElementById("seed6").textContent = label(5);
+      document.getElementById("seed4").textContent = label(3);
+      document.getElementById("seed5").textContent = label(4);
+      document.getElementById("bracket-seed1").textContent = label(0);
+      document.getElementById("bracket-seed2").textContent = label(1);
+      document.getElementById("bye-seed1").textContent = label(0);
+      document.getElementById("bye-seed2").textContent = label(1);
+    }
+
+    function initIfEmpty() {
+      const fresh = PLAYERS.map(name => ({
+        name,
+        rounds: Array(ROUNDS).fill(null)
+      }));
+
+      try {
+        const saved = localStorage.getItem("summerSeries2026");
+        if (!saved) {
+          saveScores(fresh);
+          return;
+        }
+        const data = JSON.parse(saved);
+        const savedNames = data.map(p => p.name).join(",");
+        const expectedNames = PLAYERS.join(",");
+        if (data.length !== PLAYERS.length || savedNames !== expectedNames) {
+          saveScores(fresh);
+        }
+      } catch (e) {
+        saveScores(fresh);
+      }
+    }
+
+    initIfEmpty();
+    renderLeaderboard();
+  </script>
 
 </body>
 </html>
