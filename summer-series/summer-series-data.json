@@ -1,17 +1,137 @@
 {
   "version": 1,
-  "exportedAt": "2026-01-01T00:00:00.000Z",
+  "exportedAt": "2026-07-17T03:07:29.818Z",
   "title": "2026 Summer Series",
   "players": [
-    { "name": "JZ", "rounds": [null, null, null, null, null, null, null, null] },
-    { "name": "JW", "rounds": [null, null, null, null, null, null, null, null] },
-    { "name": "Alex", "rounds": [null, null, null, null, null, null, null, null] },
-    { "name": "Aaron", "rounds": [null, null, null, null, null, null, null, null] },
-    { "name": "Manny", "rounds": [null, null, null, null, null, null, null, null] },
-    { "name": "Mike", "rounds": [null, null, null, null, null, null, null, null] },
-    { "name": "Jeremy", "rounds": [null, null, null, null, null, null, null, null] },
-    { "name": "Riley", "rounds": [null, null, null, null, null, null, null, null] },
-    { "name": "Austin", "rounds": [null, null, null, null, null, null, null, null] },
-    { "name": "Cliff", "rounds": [null, null, null, null, null, null, null, null] }
+    {
+      "name": "JZ",
+      "rounds": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    {
+      "name": "JW",
+      "rounds": [
+        36,
+        33,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    {
+      "name": "Alex",
+      "rounds": [
+        29,
+        29,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    {
+      "name": "Aaron",
+      "rounds": [
+        33,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    {
+      "name": "Manny",
+      "rounds": [
+        27,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    {
+      "name": "Mike",
+      "rounds": [
+        31,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    {
+      "name": "Jeremy",
+      "rounds": [
+        41,
+        30,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    {
+      "name": "Riley",
+      "rounds": [
+        25,
+        30,
+        25,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    {
+      "name": "Austin",
+      "rounds": [
+        42,
+        25,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    {
+      "name": "Cliff",
+      "rounds": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
   ]
 }
