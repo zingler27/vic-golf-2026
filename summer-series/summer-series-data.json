@@ -1,12 +1,12 @@
 {
   "version": 1,
-  "exportedAt": "2026-07-18T19:22:21.774Z",
+  "exportedAt": "2026-07-19T04:29:40.099Z",
   "title": "2026 Summer Series",
   "players": [
     {
       "name": "JZ",
       "rounds": [
-        null,
+        29,
         null,
         null,
         null,
@@ -59,7 +59,7 @@
       "name": "Manny",
       "rounds": [
         27,
-        null,
+        31,
         null,
         null,
         null,
