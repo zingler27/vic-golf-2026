@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exportedAt": "2026-07-19T04:29:40.099Z",
+  "exportedAt": "2026-07-21T22:57:09.779Z",
   "title": "2026 Summer Series",
   "players": [
     {
@@ -21,7 +21,7 @@
       "rounds": [
         36,
         33,
-        null,
+        32,
         null,
         null,
         null,
@@ -100,7 +100,7 @@
         25,
         30,
         25,
-        null,
+        26,
         null,
         null,
         null,
@@ -112,7 +112,7 @@
       "rounds": [
         42,
         25,
-        null,
+        25,
         null,
         null,
         null,
