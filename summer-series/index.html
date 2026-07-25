@@ -8,6 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Source+Sans+3:wght@400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../css/vic-theme.css">
+  <style>.player-avg{font-weight:500;color:#5a5a5a;font-size:.9em}</style>
 </head>
 <body>
 
@@ -276,6 +277,18 @@
       return player.rounds.reduce((sum, pts) => sum + (pts ?? 0), 0);
     }
 
+    function averagePoints(player) {
+      const played = player.rounds.filter(pts => pts !== null);
+      if (played.length === 0) return null;
+      return played.reduce((sum, pts) => sum + pts, 0) / played.length;
+    }
+
+    function formatAverage(avg) {
+      if (avg === null) return "";
+      const rounded = Math.round(avg * 10) / 10;
+      return Number.isInteger(rounded) ? String(rounded) : rounded.toFixed(1);
+    }
+
     function sortedStandings(data) {
       return [...data].sort((a, b) => {
         const diff = totalPoints(b) - totalPoints(a);
@@ -356,6 +369,10 @@
       body.innerHTML = sorted.map((player, i) => {
         const rank = i + 1;
         const total = totalPoints(player);
+        const avg = formatAverage(averagePoints(player));
+        const nameLabel = avg
+          ? `${player.name} <span class="player-avg" style="font-weight:500;color:#5a5a5a;font-size:0.9em;">(${avg})</span>`
+          : player.name;
         const roundCells = player.rounds.map((pts, ri) => {
           const display = pts === null ? PLACEHOLDER : pts;
           const cls = pts === null ? "editable" : "editable has-score";
@@ -366,7 +383,7 @@
 
         return `<tr class="${playoffClass}${rankClass}">
           <td class="rank-cell">#${rank}</td>
-          <td class="player-col">${player.name}</td>
+          <td class="player-col">${nameLabel}</td>
           ${roundCells}
           <td class="total-cell">${total || PLACEHOLDER}</td>
         </tr>`;
