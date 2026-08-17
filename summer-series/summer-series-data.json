@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exportedAt": "2026-08-14T00:03:11.767Z",
+  "exportedAt": "2026-08-17T01:16:00.998Z",
   "title": "2026 Summer Series",
   "players": [
     {
@@ -11,7 +11,7 @@
         31,
         38,
         35,
-        null,
+        33,
         null,
         null
       ]
@@ -39,7 +39,7 @@
         36,
         30,
         35,
-        null
+        29
       ]
     },
     {
@@ -62,7 +62,7 @@
         31,
         38,
         34,
-        null,
+        34,
         null,
         null,
         null
