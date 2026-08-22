@@ -8,7 +8,14 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Source+Sans+3:wght@400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../css/vic-theme.css">
-  <style>.player-avg{font-weight:500;color:#5a5a5a;font-size:.9em}</style>
+  <style>
+    .player-avg{font-weight:500;color:#5a5a5a;font-size:.9em}
+    .playoff-slot.pickable{cursor:pointer;border:1px solid transparent;transition:background .15s,border-color .15s}
+    .playoff-slot.pickable:hover{background:rgba(45,74,58,.1);border-color:rgba(197,165,90,.45)}
+    .playoff-slot.winner-pick{background:#1a3328;color:#fff;font-weight:700;border-color:#1a3328}
+    .playoff-slot.winner-pick:hover{background:#2d4a3a;border-color:#2d4a3a}
+    .playoff-champion{margin-top:1rem;text-align:center;font-family:"Playfair Display",Georgia,serif;font-size:1.25rem;color:#1a3328}
+  </style>
 </head>
 <body>
 
@@ -89,73 +96,15 @@
           <button type="button" onclick="exportSeriesData()">Export JSON</button>
           <button type="button" onclick="document.getElementById('importFileInput').click()">Import JSON</button>
           <input type="file" id="importFileInput" accept=".json,application/json" hidden>
-          <p class="sync-hint"><code>summer-series-data.json</code> loads automatically when its <code>exportedAt</code> is newer than your last change here. Export and commit that file to publish updates for everyone.</p>
+          <p class="sync-hint"><code>summer-series-data.json</code> loads automatically when its <code>exportedAt</code> is newer than your last change here. Export includes scores and playoff winners — commit that file to publish updates for everyone.</p>
         </div>
       </section>
 
       <!-- Stroke Play Playoffs -->
       <section class="section-card playoff-section" id="playoffs">
         <h3>Stroke Play Playoffs</h3>
-        <p style="text-align:center;margin-bottom:1.25rem;">Top 6 after 8 rounds qualify. Seeds #1 and #2 receive first-round byes.</p>
-
-        <div class="bracket-wrap">
-          <div class="playoff-bracket">
-
-            <div class="playoff-col">
-              <div class="playoff-match">
-                <h4>First Round</h4>
-                <div class="playoff-slot seed" id="seed3">#3 TBD</div>
-                <div class="playoff-vs">vs</div>
-                <div class="playoff-slot seed" id="seed6">#6 TBD</div>
-              </div>
-              <div class="playoff-match">
-                <h4>First Round</h4>
-                <div class="playoff-slot seed" id="seed4">#4 TBD</div>
-                <div class="playoff-vs">vs</div>
-                <div class="playoff-slot seed" id="seed5">#5 TBD</div>
-              </div>
-            </div>
-
-            <div class="playoff-connector" aria-hidden="true">&rarr;</div>
-
-            <div class="playoff-col">
-              <div class="playoff-match">
-                <h4>Semifinal</h4>
-                <div class="playoff-slot seed" id="bracket-seed2">#2 TBD</div>
-                <div class="playoff-vs">vs</div>
-                <div class="playoff-slot tbd">Winner #3 vs #6</div>
-              </div>
-              <div class="playoff-match">
-                <h4>Semifinal</h4>
-                <div class="playoff-slot seed" id="bracket-seed1">#1 TBD</div>
-                <div class="playoff-vs">vs</div>
-                <div class="playoff-slot tbd">Winner #4 vs #5</div>
-              </div>
-            </div>
-
-            <div class="playoff-connector" aria-hidden="true">&rarr;</div>
-
-            <div class="playoff-col">
-              <div class="playoff-match final-match">
-                <h4>Final</h4>
-                <div class="playoff-slot tbd">Semifinal winner</div>
-                <div class="playoff-vs">vs</div>
-                <div class="playoff-slot tbd">Semifinal winner</div>
-              </div>
-            </div>
-
-          </div>
-
-          <div class="playoff-col" style="margin-top:1.25rem;align-items:center;">
-            <div class="playoff-match bye-match" style="min-width:200px;">
-              <h4>First Round Byes</h4>
-              <div class="playoff-slot seed" id="bye-seed1">#1 TBD</div>
-              <div class="playoff-slot seed" id="bye-seed2" style="margin-top:0.5rem;">#2 TBD</div>
-            </div>
-          </div>
-
-          <p class="playoff-note">Bracket seeds update automatically from the leaderboard as round scores are entered.</p>
-        </div>
+        <p style="text-align:center;margin-bottom:1.25rem;">Top 6 after 8 rounds qualify. Seeds #1 and #2 receive first-round byes. Click a player to advance them; click again to clear.</p>
+        <div id="playoffBracket" class="bracket-wrap"></div>
       </section>
 
       <!-- Format -->
@@ -235,8 +184,9 @@
     const ROUNDS = 8;
     const PLACEHOLDER = "—";
     const STORAGE_KEY = "summerSeries2026";
+    const PLAYOFF_KEY = "summerSeries2026Playoffs";
     const TOUCH_KEY = "summerSeries2026Touch";
-    const BACKUP_VERSION = 1;
+    const BACKUP_VERSION = 2;
 
     function freshData() {
       return PLAYERS.map(name => ({
@@ -245,9 +195,22 @@
       }));
     }
 
+    function freshPlayoffPicks() {
+      return { r36: null, r45: null, semi2: null, semi1: null, final: null };
+    }
+
     function bumpLocalTouch(iso) {
       const touch = iso && !isNaN(Date.parse(iso)) ? iso : new Date().toISOString();
       localStorage.setItem(TOUCH_KEY, touch);
+    }
+
+    function hasLocalScores() {
+      return loadScores().some(p => p.rounds.some(r => r !== null));
+    }
+
+    function hasLocalPlayoffPicks() {
+      const p = loadPlayoffPicks();
+      return Object.values(p).some(v => v !== null);
     }
 
     function getLocalTouchMs() {
@@ -256,8 +219,7 @@
         const ms = Date.parse(k);
         return isNaN(ms) ? 0 : ms;
       }
-      const data = loadScores();
-      if (data.some(p => p.rounds.some(r => r !== null))) return Date.now();
+      if (hasLocalScores() || hasLocalPlayoffPicks()) return Date.now();
       return 0;
     }
 
@@ -271,6 +233,31 @@
 
     function saveScores(data) {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    }
+
+    function loadPlayoffPicks() {
+      try {
+        const saved = localStorage.getItem(PLAYOFF_KEY);
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          return normalizePlayoffPicks(parsed);
+        }
+      } catch (e) {}
+      return freshPlayoffPicks();
+    }
+
+    function savePlayoffPicks(picks) {
+      localStorage.setItem(PLAYOFF_KEY, JSON.stringify(picks));
+    }
+
+    function normalizePlayoffPicks(raw) {
+      const base = freshPlayoffPicks();
+      if (!raw || typeof raw !== "object") return base;
+      for (const key of Object.keys(base)) {
+        if (typeof raw[key] === "string" && raw[key].trim()) base[key] = raw[key].trim();
+        else if (raw[key] === null) base[key] = null;
+      }
+      return base;
     }
 
     function totalPoints(player) {
@@ -361,6 +348,184 @@
       fillScoreForm(cell.dataset.player, parseInt(cell.dataset.round, 10), cell.dataset.points === "" ? null : parseInt(cell.dataset.points, 10));
     }
 
+    function escHtml(s) {
+      return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/"/g, "&quot;");
+    }
+
+    function escAttr(s) {
+      return String(s).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
+    }
+
+    function seedLabel(seed, name) {
+      return name ? `#${seed} ${name}` : `#${seed} TBD`;
+    }
+
+    function getTop6(sorted) {
+      return sorted.slice(0, 6).map(p => p.name);
+    }
+
+    function sanitizePlayoffPicks(top6) {
+      const picks = loadPlayoffPicks();
+      const s1 = top6[0] || null;
+      const s2 = top6[1] || null;
+      const s3 = top6[2] || null;
+      const s4 = top6[3] || null;
+      const s5 = top6[4] || null;
+      const s6 = top6[5] || null;
+
+      const r36Pool = [s3, s6].filter(Boolean);
+      const r45Pool = [s4, s5].filter(Boolean);
+
+      if (picks.r36 && !r36Pool.includes(picks.r36)) picks.r36 = null;
+      if (picks.r45 && !r45Pool.includes(picks.r45)) picks.r45 = null;
+
+      const semi2Pool = [s2, picks.r36].filter(Boolean);
+      const semi1Pool = [s1, picks.r45].filter(Boolean);
+
+      if (picks.semi2 && !semi2Pool.includes(picks.semi2)) picks.semi2 = null;
+      if (picks.semi1 && !semi1Pool.includes(picks.semi1)) picks.semi1 = null;
+
+      const finalPool = [picks.semi2, picks.semi1].filter(Boolean);
+      if (picks.final && !finalPool.includes(picks.final)) picks.final = null;
+
+      savePlayoffPicks(picks);
+      return picks;
+    }
+
+    function setPlayoffWinner(match, name) {
+      const picks = loadPlayoffPicks();
+      const current = picks[match];
+      const next = current === name ? null : name;
+      picks[match] = next;
+
+      if (match === "r36") {
+        if (picks.semi2 === current) picks.semi2 = null;
+        if (picks.final === current) picks.final = null;
+      }
+      if (match === "r45") {
+        if (picks.semi1 === current) picks.semi1 = null;
+        if (picks.final === current) picks.final = null;
+      }
+      if (match === "semi2" || match === "semi1") {
+        if (picks.final === current) picks.final = null;
+      }
+
+      savePlayoffPicks(picks);
+      bumpLocalTouch();
+      renderLeaderboard();
+    }
+
+    function onPlayoffClick(event) {
+      const slot = event.target.closest("[data-match][data-name]");
+      if (!slot) return;
+      setPlayoffWinner(slot.dataset.match, slot.dataset.name);
+    }
+
+    function pickSlot(label, match, name, winner) {
+      if (!name) {
+        return `<div class="playoff-slot tbd">${escHtml(label)}</div>`;
+      }
+      const cls = winner === name ? "playoff-slot seed pickable winner-pick" : "playoff-slot seed pickable";
+      return `<div class="${cls}" data-match="${escAttr(match)}" data-name="${escAttr(name)}">${escHtml(label)}</div>`;
+    }
+
+    function staticSlot(text, isSeed) {
+      const cls = isSeed ? "playoff-slot seed" : "playoff-slot tbd";
+      return `<div class="${cls}">${escHtml(text)}</div>`;
+    }
+
+    function renderPlayoffBracket(sorted) {
+      const el = document.getElementById("playoffBracket");
+      if (!el) return;
+
+      const top6 = getTop6(sorted);
+      if (top6.length < 6) {
+        el.innerHTML = `<p class="playoff-note">Add round scores until at least six players have points. The bracket uses ranks #1–#6.</p>`;
+        return;
+      }
+
+      const picks = sanitizePlayoffPicks(top6);
+      const s1 = top6[0], s2 = top6[1], s3 = top6[2], s4 = top6[3], s5 = top6[4], s6 = top6[5];
+      const w36 = picks.r36;
+      const w45 = picks.r45;
+      const wSemi2 = picks.semi2;
+      const wSemi1 = picks.semi1;
+      const champ = picks.final;
+
+      const semi2RightLabel = w36 ? w36 : "Winner #3 vs #6";
+      const semi1RightLabel = w45 ? w45 : "Winner #4 vs #5";
+      const finalLeftLabel = wSemi2 || "Semifinal winner";
+      const finalRightLabel = wSemi1 || "Semifinal winner";
+
+      el.innerHTML = `
+        <div class="playoff-bracket">
+          <div class="playoff-col">
+            <div class="playoff-match">
+              <h4>First Round · #3 vs #6</h4>
+              ${pickSlot(seedLabel(3, s3), "r36", s3, w36)}
+              <div class="playoff-vs">vs</div>
+              ${pickSlot(seedLabel(6, s6), "r36", s6, w36)}
+            </div>
+            <div class="playoff-match">
+              <h4>First Round · #4 vs #5</h4>
+              ${pickSlot(seedLabel(4, s4), "r45", s4, w45)}
+              <div class="playoff-vs">vs</div>
+              ${pickSlot(seedLabel(5, s5), "r45", s5, w45)}
+            </div>
+          </div>
+
+          <div class="playoff-connector" aria-hidden="true">&rarr;</div>
+
+          <div class="playoff-col">
+            <div class="playoff-match">
+              <h4>Semifinal · #2 vs Winner</h4>
+              ${pickSlot(seedLabel(2, s2), "semi2", s2, wSemi2)}
+              <div class="playoff-vs">vs</div>
+              ${w36
+                ? pickSlot(w36, "semi2", w36, wSemi2)
+                : staticSlot(semi2RightLabel, false)}
+            </div>
+            <div class="playoff-match">
+              <h4>Semifinal · #1 vs Winner</h4>
+              ${pickSlot(seedLabel(1, s1), "semi1", s1, wSemi1)}
+              <div class="playoff-vs">vs</div>
+              ${w45
+                ? pickSlot(w45, "semi1", w45, wSemi1)
+                : staticSlot(semi1RightLabel, false)}
+            </div>
+          </div>
+
+          <div class="playoff-connector" aria-hidden="true">&rarr;</div>
+
+          <div class="playoff-col">
+            <div class="playoff-match final-match">
+              <h4>Final</h4>
+              ${wSemi2
+                ? pickSlot(wSemi2, "final", wSemi2, champ)
+                : staticSlot(finalLeftLabel, false)}
+              <div class="playoff-vs">vs</div>
+              ${wSemi1
+                ? pickSlot(wSemi1, "final", wSemi1, champ)
+                : staticSlot(finalRightLabel, false)}
+            </div>
+          </div>
+        </div>
+
+        <div class="playoff-col" style="margin-top:1.25rem;align-items:center;">
+          <div class="playoff-match bye-match" style="min-width:200px;">
+            <h4>First Round Byes</h4>
+            ${staticSlot(seedLabel(1, s1), true)}
+            <div style="margin-top:0.5rem;">${staticSlot(seedLabel(2, s2), true)}</div>
+          </div>
+        </div>
+
+        ${champ ? `<p class="playoff-champion">Champion: ${escHtml(champ)}</p>` : ""}
+        <p class="playoff-note">Bracket seeds update from the leaderboard. Click a player to mark the winner and advance them. Playoff picks are included when you Export JSON.</p>
+      `;
+
+      el.querySelector(".playoff-bracket")?.addEventListener("click", onPlayoffClick);
+    }
+
     function renderLeaderboard() {
       const data = loadScores();
       const sorted = sortedStandings(data);
@@ -371,7 +536,7 @@
         const total = totalPoints(player);
         const avg = formatAverage(averagePoints(player));
         const nameLabel = avg
-          ? `${player.name} <span class="player-avg" style="font-weight:500;color:#5a5a5a;font-size:0.9em;">(${avg})</span>`
+          ? `${player.name} <span class="player-avg">(${avg})</span>`
           : player.name;
         const roundCells = player.rounds.map((pts, ri) => {
           const display = pts === null ? PLACEHOLDER : pts;
@@ -389,21 +554,7 @@
         </tr>`;
       }).join("");
 
-      updatePlayoffBracket(sorted);
-    }
-
-    function updatePlayoffBracket(sorted) {
-      const top6 = sorted.slice(0, 6);
-      const label = (i) => top6[i] ? `#${i + 1} ${top6[i].name}` : `#${i + 1} TBD`;
-
-      document.getElementById("seed3").textContent = label(2);
-      document.getElementById("seed6").textContent = label(5);
-      document.getElementById("seed4").textContent = label(3);
-      document.getElementById("seed5").textContent = label(4);
-      document.getElementById("bracket-seed1").textContent = label(0);
-      document.getElementById("bracket-seed2").textContent = label(1);
-      document.getElementById("bye-seed1").textContent = label(0);
-      document.getElementById("bye-seed2").textContent = label(1);
+      renderPlayoffBracket(sorted);
     }
 
     function buildExportPayload() {
@@ -411,7 +562,8 @@
         version: BACKUP_VERSION,
         exportedAt: new Date().toISOString(),
         title: "2026 Summer Series",
-        players: loadScores()
+        players: loadScores(),
+        playoffPicks: loadPlayoffPicks()
       };
     }
 
@@ -445,7 +597,11 @@
     function parseImportData(raw) {
       if (raw && typeof raw === "object" && Array.isArray(raw.players)) {
         const players = normalizeImportedPlayers(raw.players);
-        return players ? { players } : null;
+        if (!players) return null;
+        return {
+          players,
+          playoffPicks: normalizePlayoffPicks(raw.playoffPicks)
+        };
       }
       return null;
     }
@@ -458,6 +614,7 @@
         return;
       }
       saveScores(parsed.players);
+      savePlayoffPicks(parsed.playoffPicks || freshPlayoffPicks());
       bumpLocalTouch(opts.touchISO);
       renderLeaderboard();
     }
@@ -476,7 +633,7 @@
             alert("Invalid file: need an object with a players array.");
             return;
           }
-          if (!confirm("Replace all scores in this browser with the imported file?")) return;
+          if (!confirm("Replace all scores and playoff picks in this browser with the imported file?")) return;
           applyImportedState(parsed, { touchISO: raw.exportedAt || null });
         } catch (err) {
           alert("Could not read JSON: " + (err.message || "invalid file"));
@@ -506,15 +663,19 @@
         const saved = localStorage.getItem(STORAGE_KEY);
         if (!saved) {
           saveScores(freshData());
-          return;
-        }
-        const data = JSON.parse(saved);
-        const savedNames = data.map(p => p.name).join(",");
-        if (data.length !== PLAYERS.length || savedNames !== expected) {
-          saveScores(freshData());
+        } else {
+          const data = JSON.parse(saved);
+          const savedNames = data.map(p => p.name).join(",");
+          if (data.length !== PLAYERS.length || savedNames !== expected) {
+            saveScores(freshData());
+          }
         }
       } catch (e) {
         saveScores(freshData());
+      }
+
+      if (!localStorage.getItem(PLAYOFF_KEY)) {
+        savePlayoffPicks(freshPlayoffPicks());
       }
     }
 
@@ -524,7 +685,7 @@
       document.getElementById("standingsBody").addEventListener("click", onRoundCellClick);
       document.getElementById("importFileInput").addEventListener("change", importFromFileInput);
       await tryLoadRemoteData();
-      if (!localStorage.getItem(TOUCH_KEY) && loadScores().some(p => p.rounds.some(r => r !== null))) {
+      if (!localStorage.getItem(TOUCH_KEY) && (hasLocalScores() || hasLocalPlayoffPicks())) {
         bumpLocalTouch();
       }
       renderLeaderboard();
