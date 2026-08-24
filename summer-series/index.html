@@ -15,6 +15,14 @@
     .playoff-slot.winner-pick{background:#1a3328;color:#fff;font-weight:700;border-color:#1a3328}
     .playoff-slot.winner-pick:hover{background:#2d4a3a;border-color:#2d4a3a}
     .playoff-champion{margin-top:1rem;text-align:center;font-family:"Playfair Display",Georgia,serif;font-size:1.25rem;color:#1a3328}
+    .payout-winner{margin-top:.45rem;font-size:.95rem;font-weight:600;color:#1a3328;min-height:1.25rem}
+    .payout-winner.empty{color:#5a5a5a;font-weight:500;font-style:italic}
+    .finishers-note{text-align:center;font-size:.85rem;color:#5a5a5a;margin-top:1rem}
+    .history-table{width:100%;border-collapse:collapse;margin-top:.75rem}
+    .history-table th,.history-table td{padding:.7rem .6rem;border-bottom:1px solid #ebe6dc;text-align:left}
+    .history-table th{background:#1a3328;color:#fff;font-size:.85rem;letter-spacing:.03em}
+    .history-table td{color:#1c1c1c}
+    .history-table .year-cell{font-weight:700;color:#1a3328;width:4.5rem}
   </style>
 </head>
 <body>
@@ -96,7 +104,7 @@
           <button type="button" onclick="exportSeriesData()">Export JSON</button>
           <button type="button" onclick="document.getElementById('importFileInput').click()">Import JSON</button>
           <input type="file" id="importFileInput" accept=".json,application/json" hidden>
-          <p class="sync-hint"><code>summer-series-data.json</code> loads automatically when its <code>exportedAt</code> is newer than your last change here. Export includes scores and playoff winners — commit that file to publish updates for everyone.</p>
+          <p class="sync-hint"><code>summer-series-data.json</code> loads automatically when its <code>exportedAt</code> is newer than your last change here. Export includes scores, playoff winners, and history — commit that file to publish updates for everyone.</p>
         </div>
       </section>
 
@@ -131,7 +139,7 @@
           <strong>Example:</strong> If you got a <strong>5 on Hole 3</strong> (bogey) but you get a stroke, write down the <strong>5</strong> and delineate in the box with a <strong>dot or *</strong> that there is a stroke for the hole. Because it is <strong>net par</strong>, write down <strong>2 points</strong> below your score for that hole. Add up your Stableford points at the end of the round.
         </div>
 
-        <p style="margin-top:1rem;">The <strong>top 6</strong> with the most total points after 8 rounds make the playoffs. Seeds <strong>#1 and #2</strong> receive first-round byes. First round matchups: <strong>#3 vs #6</strong> and <strong>#4 vs #5</strong>. Semifinals: winner of #4 vs #5 plays #1; winner of #3 vs #6 plays #2.</p>
+        <p style="margin-top:1rem;">The <strong>top 6</strong> with the most total points after 8 rounds make the playoffs. Seeds <strong>#1 and #2</strong> receive first-round byes. First round matchups: <strong>#3 vs #6</strong> and <strong>#4 vs #5</strong>. Semifinals: winner of #4 vs #5 plays #1; winner of #3 vs #6 plays #2. Semifinal losers play a <strong>3rd place game</strong>.</p>
       </section>
 
       <!-- Rules & Payout -->
@@ -155,22 +163,47 @@
             <div class="payout-item">
               <div class="place">1st</div>
               <div class="amount">$200</div>
+              <div class="payout-winner empty" id="finish-1">TBD</div>
             </div>
             <div class="payout-item">
               <div class="place">2nd</div>
               <div class="amount">$150</div>
+              <div class="payout-winner empty" id="finish-2">TBD</div>
             </div>
             <div class="payout-item">
               <div class="place">3rd</div>
               <div class="amount">$100</div>
+              <div class="payout-winner empty" id="finish-3">TBD</div>
             </div>
             <div class="payout-item">
               <div class="place">4th</div>
               <div class="amount">$50</div>
+              <div class="payout-winner empty" id="finish-4">TBD</div>
             </div>
           </div>
+          <p class="finishers-note">Finishers fill in from the Final and 3rd Place Game winners.</p>
         </section>
       </div>
+
+      <!-- Historical Winners -->
+      <section class="section-card" id="history">
+        <h3>Historical Winners</h3>
+        <p style="color:#5a5a5a;margin-bottom:.25rem;">Yearly 1st–4th place finishers for the Vic Boys Summer Series.</p>
+        <div class="table-wrap">
+          <table class="history-table" id="historyTable">
+            <thead>
+              <tr>
+                <th>Year</th>
+                <th>1st</th>
+                <th>2nd</th>
+                <th>3rd</th>
+                <th>4th</th>
+              </tr>
+            </thead>
+            <tbody id="historyBody"></tbody>
+          </table>
+        </div>
+      </section>
 
     </main>
   </div>
@@ -182,11 +215,13 @@
     ];
 
     const ROUNDS = 8;
+    const CURRENT_YEAR = 2026;
     const PLACEHOLDER = "—";
     const STORAGE_KEY = "summerSeries2026";
     const PLAYOFF_KEY = "summerSeries2026Playoffs";
+    const HISTORY_KEY = "summerSeriesHistory";
     const TOUCH_KEY = "summerSeries2026Touch";
-    const BACKUP_VERSION = 2;
+    const BACKUP_VERSION = 3;
 
     function freshData() {
       return PLAYERS.map(name => ({
@@ -196,7 +231,11 @@
     }
 
     function freshPlayoffPicks() {
-      return { r36: null, r45: null, semi2: null, semi1: null, final: null };
+      return { r36: null, r45: null, semi2: null, semi1: null, final: null, third: null };
+    }
+
+    function freshHistory() {
+      return [{ year: CURRENT_YEAR, first: null, second: null, third: null, fourth: null }];
     }
 
     function bumpLocalTouch(iso) {
@@ -238,10 +277,7 @@
     function loadPlayoffPicks() {
       try {
         const saved = localStorage.getItem(PLAYOFF_KEY);
-        if (saved) {
-          const parsed = JSON.parse(saved);
-          return normalizePlayoffPicks(parsed);
-        }
+        if (saved) return normalizePlayoffPicks(JSON.parse(saved));
       } catch (e) {}
       return freshPlayoffPicks();
     }
@@ -258,6 +294,35 @@
         else if (raw[key] === null) base[key] = null;
       }
       return base;
+    }
+
+    function loadHistory() {
+      try {
+        const saved = localStorage.getItem(HISTORY_KEY);
+        if (saved) return normalizeHistory(JSON.parse(saved));
+      } catch (e) {}
+      return freshHistory();
+    }
+
+    function saveHistory(history) {
+      localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+    }
+
+    function normalizeHistory(raw) {
+      if (!Array.isArray(raw) || !raw.length) return freshHistory();
+      const rows = raw.map(item => ({
+        year: parseInt(item.year, 10),
+        first: typeof item.first === "string" && item.first.trim() ? item.first.trim() : null,
+        second: typeof item.second === "string" && item.second.trim() ? item.second.trim() : null,
+        third: typeof item.third === "string" && item.third.trim() ? item.third.trim() : null,
+        fourth: typeof item.fourth === "string" && item.fourth.trim() ? item.fourth.trim() : null
+      })).filter(r => Number.isFinite(r.year));
+
+      if (!rows.some(r => r.year === CURRENT_YEAR)) {
+        rows.push({ year: CURRENT_YEAR, first: null, second: null, third: null, fourth: null });
+      }
+      rows.sort((a, b) => b.year - a.year);
+      return rows;
     }
 
     function totalPoints(player) {
@@ -364,6 +429,46 @@
       return sorted.slice(0, 6).map(p => p.name);
     }
 
+    function otherOf(a, b, winner) {
+      if (!a || !b || !winner) return null;
+      if (winner === a) return b;
+      if (winner === b) return a;
+      return null;
+    }
+
+    function getSemiLosers(top6, picks) {
+      const s1 = top6[0] || null;
+      const s2 = top6[1] || null;
+      const loser2 = otherOf(s2, picks.r36, picks.semi2);
+      const loser1 = otherOf(s1, picks.r45, picks.semi1);
+      return { loser2, loser1 };
+    }
+
+    function getFinishers(top6, picks) {
+      const first = picks.final || null;
+      const second = otherOf(picks.semi2, picks.semi1, picks.final);
+      const { loser2, loser1 } = getSemiLosers(top6, picks);
+      const third = picks.third || null;
+      const fourth = otherOf(loser2, loser1, picks.third);
+      return { first, second, third, fourth };
+    }
+
+    function syncHistoryFromFinishers(finishers) {
+      const history = loadHistory();
+      let row = history.find(r => r.year === CURRENT_YEAR);
+      if (!row) {
+        row = { year: CURRENT_YEAR, first: null, second: null, third: null, fourth: null };
+        history.push(row);
+      }
+      row.first = finishers.first;
+      row.second = finishers.second;
+      row.third = finishers.third;
+      row.fourth = finishers.fourth;
+      history.sort((a, b) => b.year - a.year);
+      saveHistory(history);
+      return history;
+    }
+
     function sanitizePlayoffPicks(top6) {
       const picks = loadPlayoffPicks();
       const s1 = top6[0] || null;
@@ -388,6 +493,10 @@
       const finalPool = [picks.semi2, picks.semi1].filter(Boolean);
       if (picks.final && !finalPool.includes(picks.final)) picks.final = null;
 
+      const { loser2, loser1 } = getSemiLosers(top6, picks);
+      const thirdPool = [loser2, loser1].filter(Boolean);
+      if (picks.third && !thirdPool.includes(picks.third)) picks.third = null;
+
       savePlayoffPicks(picks);
       return picks;
     }
@@ -401,13 +510,16 @@
       if (match === "r36") {
         if (picks.semi2 === current) picks.semi2 = null;
         if (picks.final === current) picks.final = null;
+        picks.third = null;
       }
       if (match === "r45") {
         if (picks.semi1 === current) picks.semi1 = null;
         if (picks.final === current) picks.final = null;
+        picks.third = null;
       }
       if (match === "semi2" || match === "semi1") {
         if (picks.final === current) picks.final = null;
+        picks.third = null;
       }
 
       savePlayoffPicks(picks);
@@ -434,6 +546,41 @@
       return `<div class="${cls}">${escHtml(text)}</div>`;
     }
 
+    function renderFinishers(finishers) {
+      const map = [
+        ["finish-1", finishers.first],
+        ["finish-2", finishers.second],
+        ["finish-3", finishers.third],
+        ["finish-4", finishers.fourth]
+      ];
+      for (const [id, name] of map) {
+        const el = document.getElementById(id);
+        if (!el) continue;
+        if (name) {
+          el.textContent = name;
+          el.classList.remove("empty");
+        } else {
+          el.textContent = "TBD";
+          el.classList.add("empty");
+        }
+      }
+    }
+
+    function renderHistory() {
+      const body = document.getElementById("historyBody");
+      if (!body) return;
+      const history = loadHistory();
+      body.innerHTML = history.map(row => `
+        <tr>
+          <td class="year-cell">${row.year}</td>
+          <td>${escHtml(row.first || "TBD")}</td>
+          <td>${escHtml(row.second || "TBD")}</td>
+          <td>${escHtml(row.third || "TBD")}</td>
+          <td>${escHtml(row.fourth || "TBD")}</td>
+        </tr>
+      `).join("");
+    }
+
     function renderPlayoffBracket(sorted) {
       const el = document.getElementById("playoffBracket");
       if (!el) return;
@@ -441,6 +588,9 @@
       const top6 = getTop6(sorted);
       if (top6.length < 6) {
         el.innerHTML = `<p class="playoff-note">Add round scores until at least six players have points. The bracket uses ranks #1–#6.</p>`;
+        renderFinishers({ first: null, second: null, third: null, fourth: null });
+        syncHistoryFromFinishers({ first: null, second: null, third: null, fourth: null });
+        renderHistory();
         return;
       }
 
@@ -451,11 +601,20 @@
       const wSemi2 = picks.semi2;
       const wSemi1 = picks.semi1;
       const champ = picks.final;
+      const thirdWinner = picks.third;
+      const { loser2, loser1 } = getSemiLosers(top6, picks);
+      const finishers = getFinishers(top6, picks);
+
+      syncHistoryFromFinishers(finishers);
+      renderFinishers(finishers);
+      renderHistory();
 
       const semi2RightLabel = w36 ? w36 : "Winner #3 vs #6";
       const semi1RightLabel = w45 ? w45 : "Winner #4 vs #5";
       const finalLeftLabel = wSemi2 || "Semifinal winner";
       const finalRightLabel = wSemi1 || "Semifinal winner";
+      const thirdLeftLabel = loser2 || "Semifinal loser";
+      const thirdRightLabel = loser1 || "Semifinal loser";
 
       el.innerHTML = `
         <div class="playoff-bracket">
@@ -499,7 +658,7 @@
 
           <div class="playoff-col">
             <div class="playoff-match final-match">
-              <h4>Final</h4>
+              <h4>Championship</h4>
               ${wSemi2
                 ? pickSlot(wSemi2, "final", wSemi2, champ)
                 : staticSlot(finalLeftLabel, false)}
@@ -507,6 +666,16 @@
               ${wSemi1
                 ? pickSlot(wSemi1, "final", wSemi1, champ)
                 : staticSlot(finalRightLabel, false)}
+            </div>
+            <div class="playoff-match">
+              <h4>3rd Place Game</h4>
+              ${loser2
+                ? pickSlot(loser2, "third", loser2, thirdWinner)
+                : staticSlot(thirdLeftLabel, false)}
+              <div class="playoff-vs">vs</div>
+              ${loser1
+                ? pickSlot(loser1, "third", loser1, thirdWinner)
+                : staticSlot(thirdRightLabel, false)}
             </div>
           </div>
         </div>
@@ -520,10 +689,10 @@
         </div>
 
         ${champ ? `<p class="playoff-champion">Champion: ${escHtml(champ)}</p>` : ""}
-        <p class="playoff-note">Bracket seeds update from the leaderboard. Click a player to mark the winner and advance them. Playoff picks are included when you Export JSON.</p>
+        <p class="playoff-note">Click players to pick winners of each match, including the Championship and 3rd Place Game. Finishers 1–4 update the Payout and Historical Winners sections. Export JSON to sync across devices.</p>
       `;
 
-      el.querySelector(".playoff-bracket")?.addEventListener("click", onPlayoffClick);
+      el.onclick = onPlayoffClick;
     }
 
     function renderLeaderboard() {
@@ -563,7 +732,8 @@
         exportedAt: new Date().toISOString(),
         title: "2026 Summer Series",
         players: loadScores(),
-        playoffPicks: loadPlayoffPicks()
+        playoffPicks: loadPlayoffPicks(),
+        history: loadHistory()
       };
     }
 
@@ -600,7 +770,8 @@
         if (!players) return null;
         return {
           players,
-          playoffPicks: normalizePlayoffPicks(raw.playoffPicks)
+          playoffPicks: normalizePlayoffPicks(raw.playoffPicks),
+          history: normalizeHistory(raw.history)
         };
       }
       return null;
@@ -615,6 +786,7 @@
       }
       saveScores(parsed.players);
       savePlayoffPicks(parsed.playoffPicks || freshPlayoffPicks());
+      saveHistory(parsed.history || freshHistory());
       bumpLocalTouch(opts.touchISO);
       renderLeaderboard();
     }
@@ -633,7 +805,7 @@
             alert("Invalid file: need an object with a players array.");
             return;
           }
-          if (!confirm("Replace all scores and playoff picks in this browser with the imported file?")) return;
+          if (!confirm("Replace all scores, playoff picks, and history in this browser with the imported file?")) return;
           applyImportedState(parsed, { touchISO: raw.exportedAt || null });
         } catch (err) {
           alert("Could not read JSON: " + (err.message || "invalid file"));
@@ -676,6 +848,9 @@
 
       if (!localStorage.getItem(PLAYOFF_KEY)) {
         savePlayoffPicks(freshPlayoffPicks());
+      }
+      if (!localStorage.getItem(HISTORY_KEY)) {
+        saveHistory(freshHistory());
       }
     }
 

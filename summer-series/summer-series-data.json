@@ -1,5 +1,5 @@
 {
-  "version": 2,
+  "version": 3,
   "exportedAt": "2026-08-22T19:10:52.717Z",
   "title": "2026 Summer Series",
   "players": [
@@ -139,6 +139,16 @@
     "r45": null,
     "semi2": null,
     "semi1": null,
-    "final": null
-  }
+    "final": null,
+    "third": null
+  },
+  "history": [
+    {
+      "year": 2026,
+      "first": null,
+      "second": null,
+      "third": null,
+      "fourth": null
+    }
+  ]
 }
