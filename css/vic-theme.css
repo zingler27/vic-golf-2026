@@ -76,6 +76,7 @@ a {
 .landing-main {
   flex: 1;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   padding: 2rem 1.5rem 3rem;
@@ -139,6 +140,80 @@ a {
   font-size: 0.8rem;
   color: rgba(255, 255, 255, 0.55);
   border-top: 1px solid rgba(197, 165, 90, 0.25);
+}
+
+.hall-of-fame {
+  width: 100%;
+  max-width: 960px;
+  margin: 2.5rem auto 0;
+  padding: 0 1.25rem 1rem;
+}
+
+.hall-of-fame-title {
+  font-family: var(--font-serif);
+  font-size: 1.75rem;
+  color: var(--vic-white);
+  text-align: center;
+  margin-bottom: 1.25rem;
+  letter-spacing: 0.02em;
+}
+
+.hof-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1rem;
+}
+
+.hof-card {
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(197, 165, 90, 0.45);
+  border-top: 3px solid var(--vic-gold);
+  border-radius: 4px;
+  padding: 1.25rem 1.35rem;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.12);
+}
+
+.hof-card h3 {
+  font-family: var(--font-serif);
+  font-size: 1.1rem;
+  color: var(--vic-green-dark);
+  margin-bottom: 0.85rem;
+  padding-bottom: 0.45rem;
+  border-bottom: 1px solid var(--vic-cream-dark);
+}
+
+.hof-list {
+  list-style: none;
+}
+
+.hof-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.4rem 0;
+  font-size: 0.95rem;
+  color: var(--vic-text);
+  border-bottom: 1px solid var(--vic-cream-dark);
+}
+
+.hof-list li:last-child {
+  border-bottom: none;
+}
+
+.hof-list .hof-year {
+  font-weight: 600;
+  color: var(--vic-gold-dark);
+}
+
+.hof-list .hof-winner {
+  font-weight: 600;
+  color: var(--vic-green-dark);
+}
+
+.hof-tbd {
+  font-size: 0.95rem;
+  color: var(--vic-text-muted);
+  font-style: italic;
 }
 
 /* ---- Subpage shell ---- */
