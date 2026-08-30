@@ -1,6 +1,6 @@
 {
   "version": 4,
-  "exportedAt": "2026-08-30T02:41:27.190Z",
+  "exportedAt": "2026-08-30T19:00:50.503Z",
   "title": "2026 Summer Series",
   "players": [
     {
@@ -134,7 +134,20 @@
       ]
     }
   ],
-  "tiebreakers": [],
+  "tiebreakers": [
+    {
+      "key": "Cliff|JZ",
+      "players": [
+        "Cliff",
+        "JZ"
+      ],
+      "scores": {
+        "Cliff": 5,
+        "JZ": 4
+      },
+      "winner": "JZ"
+    }
+  ],
   "playoffPicks": {
     "r36": null,
     "r45": null,
