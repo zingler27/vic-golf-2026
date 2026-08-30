@@ -216,6 +216,58 @@ a {
   font-style: italic;
 }
 
+.hof-section-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--vic-gold-dark);
+  margin-bottom: 0.5rem;
+}
+
+.hof-current {
+  margin-top: 1.1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--vic-cream-dark);
+}
+
+.hof-champion {
+  text-align: center;
+}
+
+.hof-champion-photo {
+  width: 100%;
+  max-width: 220px;
+  height: auto;
+  border-radius: 4px;
+  border: 2px solid var(--vic-gold);
+  box-shadow: 0 4px 16px rgba(26, 51, 40, 0.15);
+  display: block;
+  margin: 0 auto 0.65rem;
+}
+
+.hof-champion-name {
+  font-family: var(--font-serif);
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--vic-green-dark);
+}
+
+.hof-champion-placeholder {
+  width: 120px;
+  height: 120px;
+  margin: 0 auto 0.65rem;
+  border-radius: 4px;
+  border: 2px dashed var(--vic-cream-dark);
+  background: var(--vic-cream);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-serif);
+  font-size: 2rem;
+  color: var(--vic-text-muted);
+}
+
 /* ---- Subpage shell ---- */
 .subpage {
   min-height: 100vh;
