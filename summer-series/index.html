@@ -23,6 +23,21 @@
     .history-table th{background:#1a3328;color:#fff;font-size:.85rem;letter-spacing:.03em}
     .history-table td{color:#1c1c1c}
     .history-table .year-cell{font-weight:700;color:#1a3328;width:4.5rem}
+    .tiebreaker-group{margin-top:1rem;padding:1rem;background:#faf8f4;border:1px solid #ebe6dc;border-radius:4px}
+    .tiebreaker-group:first-child{margin-top:0}
+    .tiebreaker-group h4{font-family:"Playfair Display",Georgia,serif;font-size:1rem;color:#1a3328;margin-bottom:.75rem}
+    .tiebreaker-players{display:flex;flex-wrap:wrap;gap:1rem;justify-content:center}
+    .tiebreaker-player{flex:1;min-width:140px;max-width:200px;text-align:center}
+    .tiebreaker-player label{display:block;font-size:.8rem;font-weight:600;color:#5a5a5a;margin-bottom:.35rem}
+    .tiebreaker-player input{width:4rem;padding:.45rem .5rem;border:1px solid #d4cfc4;border-radius:4px;font-size:1rem;text-align:center}
+    .tiebreaker-player.winner-pick .tiebreaker-name{cursor:pointer;padding:.35rem .5rem;border-radius:4px;border:1px solid transparent;transition:background .15s,border-color .15s}
+    .tiebreaker-player.winner-pick .tiebreaker-name:hover{background:rgba(45,74,58,.1);border-color:rgba(197,165,90,.45)}
+    .tiebreaker-player.is-winner .tiebreaker-name{background:#1a3328;color:#fff;font-weight:700}
+    .tiebreaker-result{margin-top:.75rem;text-align:center;font-size:.9rem;color:#1a3328;font-weight:600}
+    .tiebreaker-result.pending{color:#5a5a5a;font-weight:500;font-style:italic}
+    .po-tag{display:inline-block;margin-left:.35rem;font-size:.72rem;font-weight:600;color:#5a5a5a;letter-spacing:.02em}
+    .data-table tr.tie-pending .total-cell{color:#a0622e}
+    .data-table tr.tie-winner .total-cell{color:#1a3328}
   </style>
 </head>
 <body>
@@ -68,6 +83,13 @@
         </p>
       </section>
 
+      <!-- Points Tiebreakers -->
+      <section class="section-card" id="tiebreakersSection" hidden>
+        <h3>Points Tiebreakers</h3>
+        <p class="score-hint" style="margin-bottom:1rem;">Players tied on total Stableford points after 8 rounds play a <strong>1-hole net stroke playoff</strong>. Lowest net score wins the higher rank and seed. Enter playoff scores below — rankings and the playoff bracket update automatically.</p>
+        <div id="tiebreakerList"></div>
+      </section>
+
       <!-- Enter Scores -->
       <section class="section-card score-entry-card" id="enter-scores">
         <h3>Enter Scores</h3>
@@ -104,7 +126,7 @@
           <button type="button" onclick="exportSeriesData()">Export JSON</button>
           <button type="button" onclick="document.getElementById('importFileInput').click()">Import JSON</button>
           <input type="file" id="importFileInput" accept=".json,application/json" hidden>
-          <p class="sync-hint"><code>summer-series-data.json</code> loads automatically when its <code>exportedAt</code> is newer than your last change here. Export includes scores, playoff winners, and history — commit that file to publish updates for everyone.</p>
+          <p class="sync-hint"><code>summer-series-data.json</code> loads automatically when its <code>exportedAt</code> is newer than your last change here. Export includes scores, tiebreakers, playoff winners, and history — commit that file to publish updates for everyone.</p>
         </div>
       </section>
 
@@ -140,6 +162,7 @@
         </div>
 
         <p style="margin-top:1rem;">The <strong>top 6</strong> with the most total points after 8 rounds make the playoffs. Seeds <strong>#1 and #2</strong> receive first-round byes. First round matchups: <strong>#3 vs #6</strong> and <strong>#4 vs #5</strong>. Semifinals: winner of #4 vs #5 plays #1; winner of #3 vs #6 plays #2. Semifinal losers play a <strong>3rd place game</strong>.</p>
+        <p style="margin-top:0.75rem;">If two or more players tie on total points, they play a <strong>1-hole net stroke playoff</strong> to determine rank and seeding. Lowest net score wins the higher position.</p>
       </section>
 
       <!-- Rules & Payout -->
@@ -219,9 +242,10 @@
     const PLACEHOLDER = "—";
     const STORAGE_KEY = "summerSeries2026";
     const PLAYOFF_KEY = "summerSeries2026Playoffs";
+    const TIEBREAKER_KEY = "summerSeries2026Tiebreakers";
     const HISTORY_KEY = "summerSeriesHistory";
     const TOUCH_KEY = "summerSeries2026Touch";
-    const BACKUP_VERSION = 3;
+    const BACKUP_VERSION = 4;
 
     function freshData() {
       return PLAYERS.map(name => ({
@@ -232,6 +256,10 @@
 
     function freshPlayoffPicks() {
       return { r36: null, r45: null, semi2: null, semi1: null, final: null, third: null };
+    }
+
+    function freshTiebreakers() {
+      return [];
     }
 
     function freshHistory() {
@@ -252,13 +280,17 @@
       return Object.values(p).some(v => v !== null);
     }
 
+    function hasLocalTiebreakers() {
+      return loadTiebreakers().some(t => t.winner || Object.keys(t.scores || {}).length > 0);
+    }
+
     function getLocalTouchMs() {
       const k = localStorage.getItem(TOUCH_KEY);
       if (k) {
         const ms = Date.parse(k);
         return isNaN(ms) ? 0 : ms;
       }
-      if (hasLocalScores() || hasLocalPlayoffPicks()) return Date.now();
+      if (hasLocalScores() || hasLocalPlayoffPicks() || hasLocalTiebreakers()) return Date.now();
       return 0;
     }
 
@@ -284,6 +316,110 @@
 
     function savePlayoffPicks(picks) {
       localStorage.setItem(PLAYOFF_KEY, JSON.stringify(picks));
+    }
+
+    function loadTiebreakers() {
+      try {
+        const saved = localStorage.getItem(TIEBREAKER_KEY);
+        if (saved) return normalizeTiebreakers(JSON.parse(saved));
+      } catch (e) {}
+      return freshTiebreakers();
+    }
+
+    function saveTiebreakers(items) {
+      localStorage.setItem(TIEBREAKER_KEY, JSON.stringify(items));
+    }
+
+    function groupKey(players) {
+      return [...players].sort().join("|");
+    }
+
+    function normalizeTiebreakers(raw) {
+      if (!Array.isArray(raw)) return freshTiebreakers();
+      return raw.map(item => {
+        const players = Array.isArray(item.players)
+          ? item.players.filter(n => typeof n === "string").map(n => n.trim()).filter(Boolean).sort()
+          : [];
+        const scores = {};
+        if (item.scores && typeof item.scores === "object") {
+          for (const [name, value] of Object.entries(item.scores)) {
+            if (value === null || value === undefined || value === "") continue;
+            const n = parseInt(value, 10);
+            if (!isNaN(n) && n >= 0) scores[name] = n;
+          }
+        }
+        let winner = typeof item.winner === "string" && item.winner.trim() ? item.winner.trim() : null;
+        if (winner && !players.includes(winner)) winner = null;
+        return { key: groupKey(players), players, scores, winner };
+      }).filter(t => t.players.length >= 2);
+    }
+
+    function findTiedGroups(data) {
+      const byTotal = new Map();
+      for (const player of data) {
+        const total = totalPoints(player);
+        if (total <= 0) continue;
+        if (!byTotal.has(total)) byTotal.set(total, []);
+        byTotal.get(total).push(player.name);
+      }
+      return [...byTotal.entries()]
+        .filter(([, names]) => names.length > 1)
+        .map(([total, players]) => ({
+          total,
+          players: [...players].sort(),
+          key: groupKey(players)
+        }));
+    }
+
+    function getTiebreakerEntry(tiebreakers, key) {
+      return tiebreakers.find(t => t.key === key) || null;
+    }
+
+    function getTieGroupForPlayer(data, name) {
+      const player = findPlayer(data, name);
+      if (!player) return null;
+      const total = totalPoints(player);
+      return findTiedGroups(data).find(g => g.total === total && g.players.includes(name)) || null;
+    }
+
+    function allPlayoffScoresEntered(players, scores) {
+      return players.every(p => scores[p] !== undefined && scores[p] !== null);
+    }
+
+    function resolveWinnerFromScores(players, scores) {
+      if (!allPlayoffScoresEntered(players, scores)) return null;
+      const min = Math.min(...players.map(p => scores[p]));
+      const lows = players.filter(p => scores[p] === min);
+      return lows.length === 1 ? lows[0] : null;
+    }
+
+    function sanitizeTiebreakers(data) {
+      const groups = findTiedGroups(data);
+      const validKeys = new Set(groups.map(g => g.key));
+      const tiebreakers = loadTiebreakers()
+        .filter(t => validKeys.has(t.key))
+        .map(t => {
+          const group = groups.find(g => g.key === t.key);
+          const scores = {};
+          for (const name of group.players) {
+            if (t.scores[name] !== undefined) scores[name] = t.scores[name];
+          }
+          let winner = t.winner && group.players.includes(t.winner) ? t.winner : null;
+          const autoWinner = resolveWinnerFromScores(group.players, scores);
+          if (autoWinner) winner = autoWinner;
+          return { key: t.key, players: group.players, scores, winner };
+        });
+      saveTiebreakers(tiebreakers);
+      return tiebreakers;
+    }
+
+    function ensureTiebreakerEntry(tiebreakers, group) {
+      let entry = getTiebreakerEntry(tiebreakers, group.key);
+      if (!entry) {
+        entry = { key: group.key, players: group.players, scores: {}, winner: null };
+        tiebreakers.push(entry);
+      }
+      return entry;
     }
 
     function normalizePlayoffPicks(raw) {
@@ -341,12 +477,71 @@
       return Number.isInteger(rounded) ? String(rounded) : rounded.toFixed(1);
     }
 
-    function sortedStandings(data) {
-      return [...data].sort((a, b) => {
-        const diff = totalPoints(b) - totalPoints(a);
-        if (diff !== 0) return diff;
+    function sortedStandings(data, tiebreakers) {
+      return [...data].sort((a, b) => compareStandings(a, b, data, tiebreakers));
+    }
+
+    function compareStandings(a, b, data, tiebreakers) {
+      const diff = totalPoints(b) - totalPoints(a);
+      if (diff !== 0) return diff;
+
+      const group = getTieGroupForPlayer(data, a.name);
+      if (!group || !group.players.includes(b.name)) {
         return a.name.localeCompare(b.name);
-      });
+      }
+
+      const entry = getTiebreakerEntry(tiebreakers, group.key);
+      if (!entry) return a.name.localeCompare(b.name);
+
+      const scoreA = entry.scores[a.name];
+      const scoreB = entry.scores[b.name];
+      if (scoreA !== undefined && scoreB !== undefined && scoreA !== scoreB) {
+        return scoreA - scoreB;
+      }
+
+      if (entry.winner === a.name) return -1;
+      if (entry.winner === b.name) return 1;
+      return a.name.localeCompare(b.name);
+    }
+
+    function isTieResolved(group, entry) {
+      if (!entry) return false;
+      if (entry.winner) return true;
+      return resolveWinnerFromScores(group.players, entry.scores) !== null;
+    }
+
+    function computeDisplayRanks(sorted, data, tiebreakers) {
+      const ranks = [];
+      for (let i = 0; i < sorted.length; i++) {
+        const player = sorted[i];
+        const total = totalPoints(player);
+        const group = getTieGroupForPlayer(data, player.name);
+        const entry = group ? getTiebreakerEntry(tiebreakers, group.key) : null;
+        const resolved = group ? isTieResolved(group, entry) : false;
+
+        let num;
+        if (i === 0) {
+          num = 1;
+        } else {
+          const prevPlayer = sorted[i - 1];
+          const sameTotal = totalPoints(prevPlayer) === total;
+          const orderBroken = compareStandings(prevPlayer, player, data, tiebreakers) !== 0;
+          if (sameTotal && !orderBroken) {
+            num = ranks[i - 1].num;
+          } else {
+            num = i + 1;
+          }
+        }
+
+        ranks.push({
+          num,
+          tied: !!(group && group.players.length > 1 && !resolved),
+          group,
+          entry,
+          resolved
+        });
+      }
+      return ranks;
     }
 
     function findPlayer(data, name) {
@@ -581,6 +776,120 @@
       `).join("");
     }
 
+    function renderTiebreakers(data, tiebreakers) {
+      const section = document.getElementById("tiebreakersSection");
+      const list = document.getElementById("tiebreakerList");
+      if (!section || !list) return;
+
+      const groups = findTiedGroups(data);
+      if (!groups.length) {
+        section.hidden = true;
+        list.innerHTML = "";
+        return;
+      }
+
+      section.hidden = false;
+      list.innerHTML = groups.map(group => {
+        const entry = ensureTiebreakerEntry(tiebreakers, group);
+        const autoWinner = resolveWinnerFromScores(group.players, entry.scores);
+        const winner = autoWinner || entry.winner;
+        const allScores = allPlayoffScoresEntered(group.players, entry.scores);
+        const stillTied = allScores && !autoWinner && !entry.winner;
+
+        const playerBlocks = group.players.map(name => {
+          const score = entry.scores[name];
+          const isWinner = winner === name;
+          const canPick = stillTied || (allScores && !autoWinner);
+          const pickClass = canPick ? " winner-pick" : "";
+          const winClass = isWinner ? " is-winner" : "";
+          const nameHtml = canPick
+            ? `<div class="tiebreaker-name" data-action="pick-winner" data-key="${escAttr(group.key)}" data-name="${escAttr(name)}">${escHtml(name)}</div>`
+            : `<div class="tiebreaker-name">${escHtml(name)}</div>`;
+          return `
+            <div class="tiebreaker-player${pickClass}${winClass}">
+              ${nameHtml}
+              <label>1-hole net score
+                <input type="number" min="1" max="15" step="1"
+                  data-action="score"
+                  data-key="${escAttr(group.key)}"
+                  data-name="${escAttr(name)}"
+                  value="${score !== undefined ? score : ""}"
+                  placeholder="—">
+              </label>
+            </div>`;
+        }).join("");
+
+        let resultHtml;
+        if (winner) {
+          resultHtml = `<p class="tiebreaker-result">${escHtml(winner)} wins the tiebreaker (lower net score)</p>`;
+        } else if (stillTied) {
+          resultHtml = `<p class="tiebreaker-result pending">Still tied on the playoff hole — click a player above to advance them</p>`;
+        } else {
+          resultHtml = `<p class="tiebreaker-result pending">Enter both playoff scores to determine rank</p>`;
+        }
+
+        return `
+          <div class="tiebreaker-group" data-key="${escAttr(group.key)}">
+            <h4>${group.total} points · ${group.players.map(n => escHtml(n)).join(" vs ")}</h4>
+            <div class="tiebreaker-players">${playerBlocks}</div>
+            ${resultHtml}
+          </div>`;
+      }).join("");
+    }
+
+    function updateTiebreakerScore(key, name, rawValue) {
+      const data = loadScores();
+      const groups = findTiedGroups(data);
+      const group = groups.find(g => g.key === key);
+      if (!group || !group.players.includes(name)) return;
+
+      const tiebreakers = sanitizeTiebreakers(data);
+      const entry = ensureTiebreakerEntry(tiebreakers, group);
+      const trimmed = rawValue.trim();
+
+      if (trimmed === "") {
+        delete entry.scores[name];
+        entry.winner = null;
+      } else {
+        const score = parseInt(trimmed, 10);
+        if (isNaN(score) || score < 1) return;
+        entry.scores[name] = score;
+        entry.winner = resolveWinnerFromScores(group.players, entry.scores);
+      }
+
+      saveTiebreakers(tiebreakers);
+      bumpLocalTouch();
+      renderLeaderboard();
+    }
+
+    function setTiebreakerWinner(key, name) {
+      const data = loadScores();
+      const groups = findTiedGroups(data);
+      const group = groups.find(g => g.key === key);
+      if (!group || !group.players.includes(name)) return;
+
+      const tiebreakers = sanitizeTiebreakers(data);
+      const entry = ensureTiebreakerEntry(tiebreakers, group);
+      if (!allPlayoffScoresEntered(group.players, entry.scores)) return;
+
+      entry.winner = entry.winner === name ? null : name;
+      saveTiebreakers(tiebreakers);
+      bumpLocalTouch();
+      renderLeaderboard();
+    }
+
+    function onTiebreakerInput(event) {
+      const input = event.target.closest('input[data-action="score"]');
+      if (input) {
+        updateTiebreakerScore(input.dataset.key, input.dataset.name, input.value);
+        return;
+      }
+      const pick = event.target.closest('[data-action="pick-winner"]');
+      if (pick) {
+        setTiebreakerWinner(pick.dataset.key, pick.dataset.name);
+      }
+    }
+
     function renderPlayoffBracket(sorted) {
       const el = document.getElementById("playoffBracket");
       if (!el) return;
@@ -697,11 +1006,14 @@
 
     function renderLeaderboard() {
       const data = loadScores();
-      const sorted = sortedStandings(data);
+      const tiebreakers = sanitizeTiebreakers(data);
+      const sorted = sortedStandings(data, tiebreakers);
+      const rankInfo = computeDisplayRanks(sorted, data, tiebreakers);
       const body = document.getElementById("standingsBody");
 
       body.innerHTML = sorted.map((player, i) => {
-        const rank = i + 1;
+        const info = rankInfo[i];
+        const rankLabel = info.tied ? `#T${info.num}` : `#${info.num}`;
         const total = totalPoints(player);
         const avg = formatAverage(averagePoints(player));
         const nameLabel = avg
@@ -712,17 +1024,29 @@
           const cls = pts === null ? "editable" : "editable has-score";
           return `<td class="round-cell ${cls}" data-player="${player.name}" data-round="${ri}" data-points="${pts ?? ""}">${display}</td>`;
         }).join("");
-        const playoffClass = rank <= 6 ? " playoff-cut" : "";
-        const rankClass = rank <= 3 ? ` rank-${rank}` : "";
 
-        return `<tr class="${playoffClass}${rankClass}">
-          <td class="rank-cell">#${rank}</td>
+        let poTag = "";
+        if (info.entry && info.entry.scores[player.name] !== undefined) {
+          poTag = `<span class="po-tag">PO ${info.entry.scores[player.name]}</span>`;
+        }
+
+        let rowClass = "";
+        if (info.tied) rowClass = " tie-pending";
+        else if (info.resolved && info.entry && info.entry.winner === player.name) rowClass = " tie-winner";
+
+        const rank = i + 1;
+        const playoffClass = rank <= 6 ? " playoff-cut" : "";
+        const rankClass = info.num <= 3 && !info.tied ? ` rank-${info.num}` : "";
+
+        return `<tr class="${playoffClass}${rankClass}${rowClass}">
+          <td class="rank-cell">${rankLabel}</td>
           <td class="player-col">${nameLabel}</td>
           ${roundCells}
-          <td class="total-cell">${total || PLACEHOLDER}</td>
+          <td class="total-cell">${total || PLACEHOLDER}${poTag}</td>
         </tr>`;
       }).join("");
 
+      renderTiebreakers(data, tiebreakers);
       renderPlayoffBracket(sorted);
     }
 
@@ -732,6 +1056,7 @@
         exportedAt: new Date().toISOString(),
         title: "2026 Summer Series",
         players: loadScores(),
+        tiebreakers: loadTiebreakers(),
         playoffPicks: loadPlayoffPicks(),
         history: loadHistory()
       };
@@ -770,6 +1095,7 @@
         if (!players) return null;
         return {
           players,
+          tiebreakers: normalizeTiebreakers(raw.tiebreakers),
           playoffPicks: normalizePlayoffPicks(raw.playoffPicks),
           history: normalizeHistory(raw.history)
         };
@@ -785,6 +1111,7 @@
         return;
       }
       saveScores(parsed.players);
+      saveTiebreakers(parsed.tiebreakers || freshTiebreakers());
       savePlayoffPicks(parsed.playoffPicks || freshPlayoffPicks());
       saveHistory(parsed.history || freshHistory());
       bumpLocalTouch(opts.touchISO);
@@ -805,7 +1132,7 @@
             alert("Invalid file: need an object with a players array.");
             return;
           }
-          if (!confirm("Replace all scores, playoff picks, and history in this browser with the imported file?")) return;
+          if (!confirm("Replace all scores, tiebreakers, playoff picks, and history in this browser with the imported file?")) return;
           applyImportedState(parsed, { touchISO: raw.exportedAt || null });
         } catch (err) {
           alert("Could not read JSON: " + (err.message || "invalid file"));
@@ -849,6 +1176,9 @@
       if (!localStorage.getItem(PLAYOFF_KEY)) {
         savePlayoffPicks(freshPlayoffPicks());
       }
+      if (!localStorage.getItem(TIEBREAKER_KEY)) {
+        saveTiebreakers(freshTiebreakers());
+      }
       if (!localStorage.getItem(HISTORY_KEY)) {
         saveHistory(freshHistory());
       }
@@ -858,9 +1188,11 @@
       initData();
       populatePlayerSelect();
       document.getElementById("standingsBody").addEventListener("click", onRoundCellClick);
+      document.getElementById("tiebreakerList").addEventListener("change", onTiebreakerInput);
+      document.getElementById("tiebreakerList").addEventListener("click", onTiebreakerInput);
       document.getElementById("importFileInput").addEventListener("change", importFromFileInput);
       await tryLoadRemoteData();
-      if (!localStorage.getItem(TOUCH_KEY) && (hasLocalScores() || hasLocalPlayoffPicks())) {
+      if (!localStorage.getItem(TOUCH_KEY) && (hasLocalScores() || hasLocalPlayoffPicks() || hasLocalTiebreakers())) {
         bumpLocalTouch();
       }
       renderLeaderboard();
