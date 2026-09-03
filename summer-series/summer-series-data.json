@@ -1,6 +1,6 @@
 {
   "version": 4,
-  "exportedAt": "2026-08-30T19:00:50.503Z",
+  "exportedAt": "2026-09-03T01:07:31.591Z",
   "title": "2026 Summer Series",
   "players": [
     {
@@ -150,7 +150,7 @@
   ],
   "playoffPicks": {
     "r36": null,
-    "r45": null,
+    "r45": "Mike",
     "semi2": null,
     "semi1": null,
     "final": null,
