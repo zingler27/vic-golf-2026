@@ -1,6 +1,6 @@
 {
   "version": 4,
-  "exportedAt": "2026-09-03T01:07:31.591Z",
+  "exportedAt": "2026-09-07T21:08:27.230Z",
   "title": "2026 Summer Series",
   "players": [
     {
@@ -149,10 +149,10 @@
     }
   ],
   "playoffPicks": {
-    "r36": null,
+    "r36": "Cliff",
     "r45": "Mike",
     "semi2": null,
-    "semi1": null,
+    "semi1": "JW",
     "final": null,
     "third": null
   },
